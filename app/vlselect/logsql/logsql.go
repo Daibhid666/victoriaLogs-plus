@@ -245,11 +245,7 @@ func ProcessHitsRequest(ctx context.Context, w http.ResponseWriter, r *http.Requ
 
 	h.Set("Content-Type", "application/json")
 	writeRequestDuration(h, startTime)
-
-	// The VL-Selected-Time-Range contains the time range specified in the query, not counting (start, end) and extra_filters
-	// It is used by the built-in web UI in order to adjust the selected time range.
-	// See https://github.com/VictoriaMetrics/VictoriaLogs/issues/558#issuecomment-3180070712
-	h.Set("VL-Selected-Time-Range", ca.getSelectedTimeRange())
+	writeSelectedTimeRange(h, ca)
 
 	// Write response
 	WriteHitsSeries(w, m)
@@ -879,11 +875,7 @@ func ProcessStatsQueryRangeRequest(ctx context.Context, w http.ResponseWriter, r
 
 	h.Set("Content-Type", "application/json")
 	writeRequestDuration(h, startTime)
-
-	// The VL-Selected-Time-Range contains the time range specified in the query, not counting (start, end) and extra_filters
-	// It is used by the built-in web UI in order to adjust the selected time range.
-	// See https://github.com/VictoriaMetrics/VictoriaLogs/issues/558#issuecomment-3180070712
-	h.Set("VL-Selected-Time-Range", ca.getSelectedTimeRange())
+	writeSelectedTimeRange(h, ca)
 
 	// Write response
 	WriteStatsQueryRangeResponse(w, rows)
@@ -1041,6 +1033,7 @@ func ProcessQueryRequest(ctx context.Context, w http.ResponseWriter, r *http.Req
 
 		h.Set("Content-Type", "application/stream+json")
 		writeRequestDuration(h, startTime)
+		writeSelectedTimeRange(h, ca)
 	})
 
 	writeBlock := func(workerID uint, db *logstorage.DataBlock) {
@@ -1129,10 +1122,6 @@ func (ca *commonArgs) newQueryContext(ctx context.Context) *logstorage.QueryCont
 
 func (ca *commonArgs) updatePerQueryStatsMetrics() {
 	vlstorage.UpdatePerQueryStatsMetrics(&ca.qs)
-}
-
-func (ca *commonArgs) getSelectedTimeRange() string {
-	return fmt.Sprintf("[%d,%d]", ca.minTimestamp, ca.maxTimestamp)
 }
 
 func parseCommonArgs(r *http.Request) (*commonArgs, error) {
@@ -1416,4 +1405,14 @@ func getBoolFromRequest(dst *bool, r *http.Request, argName string) error {
 func writeRequestDuration(h http.Header, startTime time.Time) {
 	h.Set("Access-Control-Expose-Headers", "VL-Request-Duration-Seconds")
 	h.Set("VL-Request-Duration-Seconds", fmt.Sprintf("%.3f", time.Since(startTime).Seconds()))
+}
+
+func writeSelectedTimeRange(h http.Header, ca *commonArgs) {
+	// The VL-Selected-Time-Range contains the time range specified in the query, not counting (start, end) and extra_filters
+	// It is used by the built-in web UI in order to adjust the selected time range.
+	// See https://github.com/VictoriaMetrics/VictoriaLogs/issues/558#issuecomment-3180070712
+	trStr := fmt.Sprintf("[%d,%d]", ca.minTimestamp, ca.maxTimestamp)
+
+	h.Set("Access-Control-Expose-Headers", "VL-Selected-Time-Range")
+	h.Set("VL-Selected-Time-Range", trStr)
 }
