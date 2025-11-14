@@ -83,9 +83,11 @@ var requestHandlers = map[string]func(ctx context.Context, w http.ResponseWriter
 	"/internal/select/stream_field_values": processStreamFieldValuesRequest,
 	"/internal/select/streams":             processStreamsRequest,
 	"/internal/select/stream_ids":          processStreamIDsRequest,
-	"/internal/delete/run_task":            processDeleteRunTask,
-	"/internal/delete/stop_task":           processDeleteStopTask,
-	"/internal/delete/active_tasks":        processDeleteActiveTasks,
+	"/internal/select/tenant_ids":          processTenantIDsRequest,
+
+	"/internal/delete/run_task":     processDeleteRunTask,
+	"/internal/delete/stop_task":    processDeleteStopTask,
+	"/internal/delete/active_tasks": processDeleteActiveTasks,
 }
 
 func processQueryRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
@@ -373,6 +375,35 @@ func processDeleteActiveTasks(ctx context.Context, w http.ResponseWriter, r *htt
 		return fmt.Errorf("cannot send response to the client: %w", err)
 	}
 
+	return nil
+}
+
+func processTenantIDsRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	start, err := getInt64FromRequest(r, "start")
+	if err != nil {
+		return err
+	}
+	end, err := getInt64FromRequest(r, "end")
+	if err != nil {
+		return err
+	}
+
+	tenantIDs, err := vlstorage.GetTenantIDs(ctx, start, end)
+	if err != nil {
+		return fmt.Errorf("cannot obtain tenant IDs: %w", err)
+	}
+
+	// Marshal tenantIDs at first
+	data, err := json.Marshal(tenantIDs)
+	if err != nil {
+		return fmt.Errorf("cannot marshal tenantIDs: %w", err)
+	}
+
+	// Send the marshaled tenantIDs to the client
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(data); err != nil {
+		return fmt.Errorf("cannot send response to the client: %w", err)
+	}
 	return nil
 }
 

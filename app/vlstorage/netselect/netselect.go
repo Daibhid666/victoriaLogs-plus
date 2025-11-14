@@ -246,6 +246,23 @@ func (sn *storageNode) getStreamIDs(qctx *logstorage.QueryContext, limit uint64)
 	return sn.getValuesWithHits(qctx, "/internal/select/stream_ids", args)
 }
 
+func (sn *storageNode) getTenantIDs(ctx context.Context, start, end int64) ([]logstorage.TenantID, error) {
+	args := url.Values{}
+	args.Set("start", fmt.Sprintf("%d", start))
+	args.Set("end", fmt.Sprintf("%d", end))
+
+	path := "/internal/select/tenant_ids"
+	data, reqURL, err := sn.getPlainResponseBodyForPathAndArgs(ctx, path, args)
+	if err != nil {
+		return nil, err
+	}
+	var tenantIDs []logstorage.TenantID
+	if err := json.Unmarshal(data, &tenantIDs); err != nil {
+		return nil, fmt.Errorf("cannot unmarshal tenantIDs received from %q; data=%q: %w", reqURL, data, err)
+	}
+	return tenantIDs, nil
+}
+
 func (sn *storageNode) getCommonArgs(version string, qctx *logstorage.QueryContext) url.Values {
 	// ATTENTION: the *ProtocolVersion consts must be incremented every time the set of common args changes or its format changes.
 
@@ -569,6 +586,61 @@ func (s *Storage) DeleteActiveTasks(ctx context.Context) ([]*logstorage.DeleteTa
 	}
 
 	return tasks, nil
+}
+
+// GetTenantIDs returns tenantIDs for the given start and end.
+func (s *Storage) GetTenantIDs(ctx context.Context, start, end int64) ([]logstorage.TenantID, error) {
+	return s.getTenantIDs(ctx, start, end)
+}
+
+func (s *Storage) getTenantIDs(ctx context.Context, start, end int64) ([]logstorage.TenantID, error) {
+	ctxWithCancel, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([][]logstorage.TenantID, len(s.sns))
+	errs := make([]error, len(s.sns))
+
+	// Return an error to the caller when at least a single storage node is unavailable,
+	// since this may result in incomplete list of the returned tenantIDs, which may mislead the caller.
+	allowPartialResponse := false
+
+	var wg sync.WaitGroup
+	for i := range s.sns {
+		wg.Add(1)
+		go func(nodeIdx int) {
+			defer wg.Done()
+
+			sn := s.sns[nodeIdx]
+			tenantIDs, err := sn.getTenantIDs(ctxWithCancel, start, end)
+			results[nodeIdx] = tenantIDs
+			errs[nodeIdx] = sn.handleError(ctxWithCancel, cancel, err, allowPartialResponse)
+
+			if err != nil {
+				// Cancel the remaining parallel requests
+				cancel()
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	if err := getFirstError(errs, allowPartialResponse); err != nil {
+		return nil, err
+	}
+
+	// Deduplicate tenantIDs
+	m := make(map[logstorage.TenantID]struct{})
+	for _, tenantIDs := range results {
+		for _, tenantID := range tenantIDs {
+			m[tenantID] = struct{}{}
+		}
+	}
+
+	tenantIDs := make([]logstorage.TenantID, 0, len(m))
+	for tenantID := range m {
+		tenantIDs = append(tenantIDs, tenantID)
+	}
+
+	return tenantIDs, nil
 }
 
 func (s *Storage) getValuesWithHits(qctx *logstorage.QueryContext, limit uint64, resetHitsOnLimitExceeded bool,
