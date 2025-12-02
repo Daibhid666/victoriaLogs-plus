@@ -1042,20 +1042,18 @@ func (q *Query) GetStatsByFields() ([]string, error) {
 //
 // if step > 0, then _time:step is added to the last `stats by (...)` pipe at q.
 func (q *Query) GetStatsByFieldsAddGroupingByTime(step int64) ([]string, error) {
-	pipes := q.pipes
-
-	idx := getLastPipeStatsIdx(pipes)
+	idx := getLastPipeStatsIdx(q.pipes)
 	if idx < 0 {
 		return nil, fmt.Errorf("missing `| stats ...` pipe in the query [%s]", q)
 	}
-	ps := pipes[idx].(*pipeStats)
+	ps := q.pipes[idx].(*pipeStats)
 
 	// For range stats (step > 0), verify that pipes in front of the last `stats` pipe
 	// do not modify or delete the `_time` field, since it is required for bucketing by step.
 	// For instant stats (step == 0), allow such pipes for broader query flexibility.
 	if step > 0 {
 		for i := 0; i < idx; i++ {
-			p := pipes[i]
+			p := q.pipes[i]
 			if _, ok := p.(*pipeStats); ok {
 				// Skip `stats` pipe, since it is updated with the grouping by `_time` in the addByTimeFieldToStatsPipes() below.
 				continue
@@ -1092,8 +1090,8 @@ func (q *Query) GetStatsByFieldsAddGroupingByTime(step int64) ([]string, error) 
 	}
 
 	// verify that all the pipes after the idx do not add new fields
-	for i := idx + 1; i < len(pipes); i++ {
-		p := pipes[i]
+	for i := idx + 1; i < len(q.pipes); i++ {
+		p := q.pipes[i]
 		switch t := p.(type) {
 		case *pipeFilter:
 			// This pipe doesn't change the set of fields.
@@ -1209,6 +1207,21 @@ func (q *Query) GetStatsByFieldsAddGroupingByTime(step int64) ([]string, error) 
 			}
 			byFields = append(byFields, t.resultField)
 			delete(metricFields, t.resultField)
+		case *pipeUnpackJSON:
+			// Assume that `| unpack_json ... fields (...)` pipe generates an additional by(...) labels from fields(...)
+			if len(t.fieldFilters) == 0 {
+				return nil, fmt.Errorf("missing fields(...) after %q in the query [%s]", t, q)
+			}
+			for _, f := range t.fieldFilters {
+				if prefixfilter.IsWildcardFilter(f) {
+					return nil, fmt.Errorf("fields(...) at %q cannot contain wildcard filter; got %s; query [%s]", t, f, q)
+				}
+				if slices.Contains(byFields, f) {
+					return nil, fmt.Errorf("the %q field cannot be overridden at %q in the query [%s]", f, t, q)
+				}
+				byFields = append(byFields, f)
+				delete(metricFields, f)
+			}
 		default:
 			return nil, fmt.Errorf("the %q pipe cannot be put after %q pipe in the query [%s]", p, ps, q)
 		}

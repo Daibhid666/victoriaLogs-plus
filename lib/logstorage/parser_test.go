@@ -3654,6 +3654,7 @@ func TestQueryGetStatsByFieldsAddGroupingByTime_Success(t *testing.T) {
 	f(`* | count() hits | copy hits x, a b`, nsecsPerDay, []string{"_time"}, `* | stats by (_time:86400000000000) count(*) as hits | copy hits as x, a as b`)
 	f(`* | count() hits | mv hits x, a b`, nsecsPerDay, []string{"_time"}, `* | stats by (_time:86400000000000) count(*) as hits | rename hits as x, a as b`)
 	f(`* | count() hits | format "foo<hits>" as bar`, nsecsPerDay, []string{"_time", "bar"}, `* | stats by (_time:86400000000000) count(*) as hits | format "foo<hits>" as bar`)
+	f(`* | count() hits, row_any(_msg) msg | unpack_json from msg fields (_msg)`, nsecsPerDay, []string{"_time", "_msg"}, `* | stats by (_time:86400000000000) count(*) as hits, row_any(_msg) as msg | unpack_json from msg fields (_msg)`)
 
 	// multiple stats pipes and sort pipes
 	f(`* | by (path) count() requests | by (requests) count() hits | first (hits desc)`, nsecsPerDay, []string{"requests", "_time"}, `* | stats by (path, _time:86400000000000) count(*) as requests | stats by (requests, _time:86400000000000) count(*) as hits | first by (hits desc) partition by (_time)`)
@@ -3726,6 +3727,8 @@ func TestQueryGetStatsByFieldsAddGroupingByTime_Failure(t *testing.T) {
 	f(`* | by (x) count() | mv a x`)
 	f(`* | count() | format "foo" as _time`)
 	f(`* | by (x) count() | format "foo" as x`)
+	f(`* | by (x) count() y | unpack_json from y`)
+	f(`* | by (x) count() y | unpack_json from y fields(z*)`)
 
 	f(`* | stats by (host) count() total | rename host as server | fields host, total`)
 	f(`* | by (x) count() | collapse_nums at x`)
