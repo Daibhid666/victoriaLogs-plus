@@ -60,8 +60,7 @@ to [Grafana plugin playground for VictoriaLogs](https://play-grafana.victoriamet
   The only option is increasing the limit on [the number of open files in the OS](https://medium.com/@muhammadtriwibowo/set-permanently-ulimit-n-open-files-in-ubuntu-4d61064429a).
 - The recommended filesystem is `ext4`, the recommended persistent storage is [persistent HDD-based disk on GCP](https://cloud.google.com/compute/docs/disks/#pdspecs),
   since it is protected from hardware failures via internal replication and it can be [resized on the fly](https://cloud.google.com/compute/docs/disks/add-persistent-disk#resize_pd).
-  If you plan to store more than 1TB of data on `ext4` partition or plan extending it to more than 16TB,
-  then the following options are recommended to pass to `mkfs.ext4`:
+  If you plan to store more than 1TB of data on `ext4` partition, then the following options are recommended to pass to `mkfs.ext4`:
 
   ```sh
   mkfs.ext4 ... -O 64bit,huge_file,extent -T huge
