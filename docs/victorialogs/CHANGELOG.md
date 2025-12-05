@@ -21,6 +21,10 @@ according to the follosing docs:
 
 ## tip
 
+## [v1.40.0](https://github.com/VictoriaMetrics/VictoriaLogs/releases/tag/v1.40.0)
+
+Released at 2025-12-05
+
 * SECURITY: upgrade Go builder from Go1.25.4 to Go1.25.5. See [the list of issues addressed in Go1.25.5](https://github.com/golang/go/issues?q=milestone%3AGo1.25.5%20label%3ACherryPickApproved).
 
 * FEATURE: [vlagent](https://docs.victoriametrics.com/victorialogs/vlagent/): add an ability to collect logs from Kubernetes Pods. See [these docs](https://docs.victoriametrics.com/victorialogs/vlagent/#collect-kubernetes-pod-logs) for details. Thanks to @vadimalekseev for [the pull request](https://github.com/VictoriaMetrics/VictoriaLogs/pull/815). See [#538](https://github.com/VictoriaMetrics/VictoriaLogs/issues/538).
