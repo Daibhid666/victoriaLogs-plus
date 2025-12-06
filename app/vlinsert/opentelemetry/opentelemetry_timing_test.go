@@ -9,7 +9,7 @@ import (
 
 func BenchmarkParseProtobufRequest(b *testing.B) {
 	for _, scopes := range []int{1, 2} {
-		for _, rows := range []int{100, 1000} {
+		for _, rows := range []int{1, 10, 100, 1000} {
 			for _, attributes := range []int{5, 10} {
 				b.Run(fmt.Sprintf("scopes_%d/rows_%d/attributes_%d", scopes, rows, attributes), func(b *testing.B) {
 					benchmarkParseProtobufRequest(b, scopes, rows, attributes)
