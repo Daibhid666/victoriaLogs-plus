@@ -84,6 +84,7 @@ func decodeResourceLogs(src []byte, pushLogs pushLogsHandler) (err error) {
 				return fmt.Errorf("cannot read ScopeLogs data")
 			}
 
+			clear(fs.Fields[streamFieldsLen:])
 			fs.Fields = fs.Fields[:streamFieldsLen]
 
 			if err := decodeScopeLogs(data, fs, fb, pushLogs); err != nil {
@@ -154,7 +155,9 @@ func decodeScopeLogs(src []byte, fs *logstorage.Fields, fb *fmtBuffer, pushLogs 
 				return fmt.Errorf("cannot read LogRecord data")
 			}
 
+			clear(fs.Fields[commonFieldsLen:])
 			fs.Fields = fs.Fields[:commonFieldsLen]
+
 			fb.buf = fb.buf[:fbLen]
 
 			eventName, timestamp, err := decodeLogRecord(data, fs, fb)
