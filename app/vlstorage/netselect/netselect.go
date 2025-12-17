@@ -16,7 +16,6 @@ import (
 	"github.com/VictoriaMetrics/VictoriaMetrics/lib/bytesutil"
 	"github.com/VictoriaMetrics/VictoriaMetrics/lib/contextutil"
 	"github.com/VictoriaMetrics/VictoriaMetrics/lib/encoding"
-	"github.com/VictoriaMetrics/VictoriaMetrics/lib/encoding/zstd"
 	"github.com/VictoriaMetrics/VictoriaMetrics/lib/httpserver"
 	"github.com/VictoriaMetrics/VictoriaMetrics/lib/httputil"
 	"github.com/VictoriaMetrics/VictoriaMetrics/lib/logger"
@@ -170,7 +169,7 @@ func (sn *storageNode) runQuery(qctx *logstorage.QueryContext, processBlock func
 		if !sn.s.disableCompression {
 			bufLen := len(buf)
 			var err error
-			buf, err = zstd.Decompress(buf, buf)
+			buf, err = encoding.DecompressZSTD(buf, buf)
 			if err != nil {
 				return fmt.Errorf("cannot decompress data block: %w", err)
 			}
@@ -309,7 +308,7 @@ func (sn *storageNode) getResponseForPathAndArgs(ctx context.Context, path strin
 	}
 
 	bbLen := len(bb.B)
-	bb.B, err = zstd.Decompress(bb.B, bb.B)
+	bb.B, err = encoding.DecompressZSTD(bb.B, bb.B)
 	if err != nil {
 		return nil, err
 	}
