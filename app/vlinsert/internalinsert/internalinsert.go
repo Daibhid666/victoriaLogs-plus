@@ -63,6 +63,8 @@ func RequestHandler(w http.ResponseWriter, r *http.Request) {
 
 func parseData(irp insertutil.InsertRowProcessor, data []byte) error {
 	r := logstorage.GetInsertRow()
+	defer logstorage.PutInsertRow(r)
+
 	src := data
 	i := 0
 	for len(src) > 0 {
@@ -75,7 +77,6 @@ func parseData(irp insertutil.InsertRowProcessor, data []byte) error {
 
 		irp.AddInsertRow(r)
 	}
-	logstorage.PutInsertRow(r)
 
 	return nil
 }

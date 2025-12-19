@@ -70,6 +70,8 @@ func parseData(irp insertutil.InsertRowProcessor, data []byte, tenantID logstora
 	var zeroTenantID logstorage.TenantID
 
 	r := logstorage.GetInsertRow()
+	defer logstorage.PutInsertRow(r)
+
 	src := data
 	i := 0
 	for len(src) > 0 {
@@ -89,7 +91,6 @@ func parseData(irp insertutil.InsertRowProcessor, data []byte, tenantID logstora
 
 		irp.AddInsertRow(r)
 	}
-	logstorage.PutInsertRow(r)
 
 	return nil
 }
