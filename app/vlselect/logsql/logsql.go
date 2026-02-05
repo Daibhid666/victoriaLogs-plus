@@ -1504,23 +1504,23 @@ func alignStartEndToStep(start, end, step, offset int64) (int64, int64) {
 		return start, end
 	}
 
-	start = logstorage.SubInt64NoOverflow(start, offset)
+	start = logstorage.SubInt64NoOverflow(start, -offset)
 	if start >= 0 {
 		start -= start % step
 	} else {
 		d := step + start%step
 		start = logstorage.SubInt64NoOverflow(start, d)
 	}
-	start = logstorage.SubInt64NoOverflow(start, -offset)
+	start = logstorage.SubInt64NoOverflow(start, offset)
 
-	end = logstorage.SubInt64NoOverflow(end, offset)
+	end = logstorage.SubInt64NoOverflow(end, -offset)
 	if end <= 0 {
 		end -= end % step
 	} else {
 		d := step - end%step
 		end = logstorage.SubInt64NoOverflow(end, -d)
 	}
-	end = logstorage.SubInt64NoOverflow(end, -offset)
+	end = logstorage.SubInt64NoOverflow(end, offset)
 
 	if end > math.MinInt64 {
 		end--
