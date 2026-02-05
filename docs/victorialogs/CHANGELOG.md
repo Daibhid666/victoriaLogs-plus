@@ -22,6 +22,10 @@ according to the following docs:
 
 ## tip
 
+## [v1.45.0](https://github.com/VictoriaMetrics/VictoriaLogs/releases/tag/v1.45.0)
+
+Released at 2026-02-05
+
 * SECURITY: upgrade Go builder from Go1.25.6 to Go1.25.7. See [the list of issues addressed in Go1.25.7](https://github.com/golang/go/issues?q=milestone%3AGo1.25.7%20label%3ACherryPickApproved).
 * SECURITY: upgrade base docker image (Alpine) from 3.23.2 to 3.23.3. See [Alpine 3.23.3 release notes](https://www.alpinelinux.org/posts/Alpine-3.20.9-3.21.6-3.22.3-3.23.3-released.html).
 
