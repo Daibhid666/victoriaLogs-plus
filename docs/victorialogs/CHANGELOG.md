@@ -22,6 +22,8 @@ according to the following docs:
 
 ## tip
 
+* FEATURE: [querying](https://docs.victoriametrics.com/victorialogs/querying/): sort response fields by their name unless the query ends with a pipe, which preserves the order of the returned fields such as [`fields`](https://docs.victoriametrics.com/victorialogs/logsql/#fields-pipe) and [`stats`](https://docs.victoriametrics.com/victorialogs/logsql/#stats-pipe). Previously the order of the returned fields was undefined. See [#1011](https://github.com/VictoriaMetrics/VictoriaLogs/issues/1011).
+
 ## [v1.45.0](https://github.com/VictoriaMetrics/VictoriaLogs/releases/tag/v1.45.0)
 
 Released at 2026-02-05

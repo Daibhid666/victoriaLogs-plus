@@ -83,6 +83,10 @@ func (pf *pipeFacets) canReturnLastNResults() bool {
 	return false
 }
 
+func (pf *pipeFacets) isFixedOutputFieldsOrder() bool {
+	return true
+}
+
 func (pf *pipeFacets) updateNeededFields(f *prefixfilter.Filter) {
 	f.AddAllowFilter("*")
 }
