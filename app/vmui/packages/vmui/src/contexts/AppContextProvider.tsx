@@ -4,10 +4,12 @@ import { QueryStateProvider } from "../state/query/QueryStateContext";
 import { LogsStateProvider } from "../state/logsPanel/LogsStateContext";
 import { OverviewStateProvider } from "../state/overview/OverviewStateContext";
 import { SnackbarProvider } from "./Snackbar";
+import { I18nProvider } from "../i18n/I18nContext";
 
 import { combineComponents } from "../utils/combine-components";
 
 const providers = [
+  I18nProvider,
   AppStateProvider,
   TimeStateProvider,
   QueryStateProvider,

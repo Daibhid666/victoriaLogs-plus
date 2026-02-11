@@ -8,6 +8,7 @@ import { getAppModeEnable } from "../../../utils/app-mode";
 import Modal from "../../../components/Main/Modal/Modal";
 import useBoolean from "../../../hooks/useBoolean";
 import { HeaderProps } from "../Header";
+import useI18n from "../../../i18n/useI18n";
 import "./style.scss";
 
 export interface ControlsProps {
@@ -23,6 +24,7 @@ const HeaderControls: FC<ControlsProps & HeaderProps> = ({
 }) => {
   const appModeEnable = getAppModeEnable();
   const { pathname } = useLocation();
+  const { t } = useI18n();
 
   const {
     value: openList,
@@ -60,7 +62,7 @@ const HeaderControls: FC<ControlsProps & HeaderProps> = ({
           />
         </div>
         <Modal
-          title={"Controls"}
+          title={t("common.controls")}
           onClose={handleCloseList}
           isOpen={openList}
           className={classNames({

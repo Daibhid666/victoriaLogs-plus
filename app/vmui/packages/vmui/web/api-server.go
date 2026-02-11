@@ -1,7 +1,8 @@
+//go:build ignore
+
 package main
 
 import (
-	"embed"
 	"encoding/json"
 	"flag"
 	"io"
@@ -12,15 +13,8 @@ import (
 	"sync"
 )
 
-// specific files
-// static content
-//
-//go:embed favicon.svg robots.txt index.html manifest.json asset-manifest.json
-//go:embed static
-var files embed.FS
-
-var listenAddr = flag.String("listenAddr", ":8080", "defines listen addr for http server, default to :8080")
-var dataDir = flag.String("dataDir", "data", "directory to store persistent JSON data")
+var listenAddr = flag.String("listenAddr", ":8080", "listen address")
+var dataDir = flag.String("dataDir", "data", "directory to store JSON data")
 
 var mu sync.RWMutex
 
@@ -62,8 +56,21 @@ func deleteJSONFile(name string) error {
 	return nil
 }
 
-func jsonAPIHandler(filename string) http.HandlerFunc {
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next(w, r)
+	}
+}
+
+func jsonAPIHandler(filename string) http.HandlerFunc {
+	return corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		switch r.Method {
 		case http.MethodGet:
@@ -82,7 +89,6 @@ func jsonAPIHandler(filename string) http.HandlerFunc {
 				return
 			}
 			defer r.Body.Close()
-			// Validate JSON
 			if !json.Valid(body) {
 				http.Error(w, `{"error":"invalid JSON"}`, http.StatusBadRequest)
 				return
@@ -105,24 +111,21 @@ func jsonAPIHandler(filename string) http.HandlerFunc {
 		default:
 			http.Error(w, `{"error":"method not allowed"}`, http.StatusMethodNotAllowed)
 		}
-	}
+	})
 }
 
 func main() {
 	flag.Parse()
 	ensureDataDir()
 
-	handler := http.NewServeMux()
-	handler.Handle("/", http.FileServer(http.FS(files)))
-	handler.HandleFunc("/health", func(writer http.ResponseWriter, request *http.Request) {
-		writer.WriteHeader(http.StatusOK)
-		_, _ = writer.Write([]byte(`OK`))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`OK`))
 	})
+	mux.HandleFunc("/api/query-history", jsonAPIHandler("query-history.json"))
+	mux.HandleFunc("/api/group-settings", jsonAPIHandler("group-settings.json"))
 
-	// API endpoints for persistent storage
-	handler.HandleFunc("/api/query-history", jsonAPIHandler("query-history.json"))
-	handler.HandleFunc("/api/group-settings", jsonAPIHandler("group-settings.json"))
-
-	log.Printf("starting web server at: %v", *listenAddr)
-	log.Fatal(http.ListenAndServe(*listenAddr, handler))
+	log.Printf("API server starting at %s", *listenAddr)
+	log.Fatal(http.ListenAndServe(*listenAddr, mux))
 }

@@ -11,8 +11,7 @@ import ThemeControl from "../ThemeControl/ThemeControl";
 import useDeviceDetect from "../../../hooks/useDeviceDetect";
 import useBoolean from "../../../hooks/useBoolean";
 import QueryTimeOverride from "./QueryTimeOverride/QueryTimeOverride";
-
-const title = "Settings";
+import useI18n from "../../../i18n/useI18n";
 
 export interface ChildComponentHandle {
   handleApply: () => void;
@@ -24,6 +23,8 @@ export interface GlobalSettingsHandle {
 
 const GlobalSettings = forwardRef<GlobalSettingsHandle>((_, ref) => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
+  const title = t("settings.title");
 
   const appModeEnable = getAppModeEnable();
 
@@ -114,14 +115,14 @@ const GlobalSettings = forwardRef<GlobalSettingsHandle>((_, ref) => {
               variant="outlined"
               onClick={handleClose}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
               variant="contained"
               onClick={handleApply}
             >
-              Apply
+              {t("common.apply")}
             </Button>
           </div>
         </div>

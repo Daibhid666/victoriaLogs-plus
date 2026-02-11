@@ -9,6 +9,7 @@ import classNames from "classnames";
 import Tooltip from "../../../Main/Tooltip/Tooltip";
 import useDeviceDetect from "../../../../hooks/useDeviceDetect";
 import useBoolean from "../../../../hooks/useBoolean";
+import useI18n from "../../../../i18n/useI18n";
 
 interface AutoRefreshOption {
   seconds: number
@@ -32,6 +33,7 @@ const delayOptions: AutoRefreshOption[] = [
 
 export const ExecutionControls: FC = () => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
 
   const dispatch = useTimeDispatch();
   const appModeEnable = getAppModeEnable();
@@ -87,7 +89,7 @@ export const ExecutionControls: FC = () => {
         })}
       >
         {!isMobile && (
-          <Tooltip title="Refresh dashboard">
+          <Tooltip title={t("execution.refreshDashboard")}>
             <Button
               variant="contained"
               color="primary"
@@ -104,13 +106,13 @@ export const ExecutionControls: FC = () => {
           >
             <span className="vm-mobile-option__icon"><RestartIcon/></span>
             <div className="vm-mobile-option-text">
-              <span className="vm-mobile-option-text__label">Auto-refresh</span>
+              <span className="vm-mobile-option-text__label">{t("execution.autoRefresh")}</span>
               <span className="vm-mobile-option-text__value">{selectedDelay.title}</span>
             </div>
             <span className="vm-mobile-option__arrow"><ArrowDownIcon/></span>
           </div>
         ) : (
-          <Tooltip title="Auto-refresh control">
+          <Tooltip title={t("execution.autoRefreshControl")}>
             <div ref={optionsButtonRef}>
               <Button
                 variant="contained"
@@ -140,7 +142,7 @@ export const ExecutionControls: FC = () => {
       placement="bottom-right"
       onClose={handleCloseOptions}
       buttonRef={optionsButtonRef}
-      title={isMobile ? "Auto-refresh duration" : undefined}
+      title={isMobile ? t("execution.autoRefreshDuration") : undefined}
     >
       <div
         className={classNames({

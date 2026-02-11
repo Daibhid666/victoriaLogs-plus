@@ -13,6 +13,7 @@ export const ALL_STORAGE_KEYS = [
   "SERVER_URL",
   "RAW_JSON_LIVE_VIEW",
   "LOGS_OVERRIDE_TIME",
+  "LOCALE",
 ] as const;
 
 export type StorageKeys = (typeof ALL_STORAGE_KEYS)[number];

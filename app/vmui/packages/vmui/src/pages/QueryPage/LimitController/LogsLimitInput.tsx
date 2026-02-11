@@ -2,6 +2,7 @@ import { FC, useCallback, useState } from "preact/compat";
 import TextField from "../../../components/Main/TextField/TextField";
 import { useEffect } from "react";
 import { LOGS_MAX_LIMIT } from "../../../constants/logs";
+import useI18n from "../../../i18n/useI18n";
 
 type Props = {
   limit: number;
@@ -13,18 +14,19 @@ type Props = {
 const LogsLimitInput: FC<Props> = ({ limit, onChangeLimit, onPressEnter, onError }) => {
   const [errorLimit, setErrorLimit] = useState("");
   const [limitInput, setLimitInput] = useState(limit);
+  const { t } = useI18n();
 
   const isValidLimit = (number: number) => {
     if (isNaN(number) || number <= 0) {
-      setErrorLimit("Number must be > 0");
+      setErrorLimit(t("limit.mustBePositive"));
       return {
         isValid: false,
-        errorMsg: "Number must be > 0"
+        errorMsg: t("limit.mustBePositive")
       };
     } else if (number > LOGS_MAX_LIMIT) {
       return {
         isValid: false,
-        errorMsg: `Max limit is ${LOGS_MAX_LIMIT.toLocaleString("en-US")}`
+        errorMsg: t("limit.maxLimit", { max: LOGS_MAX_LIMIT.toLocaleString("en-US") })
       };
     }
 
@@ -58,7 +60,7 @@ const LogsLimitInput: FC<Props> = ({ limit, onChangeLimit, onPressEnter, onError
 
   return (
     <TextField
-      label="Log limits"
+      label={t("query.logLimits")}
       type="number"
       value={limitInput}
       error={errorLimit}

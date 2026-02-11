@@ -9,9 +9,11 @@ import { useTimeDispatch, useTimeState } from "../../../../state/time/TimeStateC
 import TimezonesList from "./TimezonesList";
 import Popper from "../../../Main/Popper/Popper";
 import useDeviceDetect from "../../../../hooks/useDeviceDetect";
+import useI18n from "../../../../i18n/useI18n";
 
 const TimezonesPicker: FC = forwardRef((_props, ref) => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
   const { timezone: stateTimezone } = useTimeState();
   const timeDispatch = useTimeDispatch();
 
@@ -47,7 +49,7 @@ const TimezonesPicker: FC = forwardRef((_props, ref) => {
   return (
     <div className="vm-timezones">
       <div className="vm-server-configurator__title">
-        Time zone
+        {t("settings.timezone")}
       </div>
       <div
         className="vm-timezones-item vm-timezones-item_selected"
@@ -71,7 +73,7 @@ const TimezonesPicker: FC = forwardRef((_props, ref) => {
         placement="bottom-left"
         onClose={handleCloseList}
         fullWidth
-        title={isMobile ? "Time zone" : undefined}
+        title={isMobile ? t("settings.timezone") : undefined}
       >
         <TimezonesList onChange={handleSetTimezone}/>
       </Popper>

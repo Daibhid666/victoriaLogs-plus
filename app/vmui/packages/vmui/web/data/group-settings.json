@@ -1,0 +1,1 @@
+{"groupBy":"_stream","displayFields":"_msg,appName,clientIP,env,hostName,level,line,logPath,logger,method,requestId,serverIP,thread","noWrapLines":true,"compactGroupHeader":true,"dateFormat":"YYYY-MM-DD HH:mm:ss","markdownParsing":false,"ansiParsing":true,"disabledHovers":true}

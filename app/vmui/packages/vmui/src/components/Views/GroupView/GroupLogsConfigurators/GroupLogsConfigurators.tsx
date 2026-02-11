@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "preact/compat";
+import { FC, useCallback, useEffect, useMemo, useState } from "preact/compat";
 import useBoolean from "../../../../hooks/useBoolean";
 import { RestartIcon, SettingsIcon } from "../../../Main/Icons";
 import Button from "../../../Main/Button/Button";
@@ -21,6 +21,13 @@ import {
 } from "../../../../constants/logs";
 import LogParsingSwitches from "../../../Configurators/LogsSettings/LogParsingSwitches";
 import { useLocalStorageBoolean } from "../../../../hooks/useLocalStorageBoolean";
+import useI18n from "../../../../i18n/useI18n";
+import { useLogsDispatch, useLogsState } from "../../../../state/logsPanel/LogsStateContext";
+import {
+  fetchGroupSettingsFromServer,
+  saveGroupSettingsToServer,
+  ServerGroupSettings
+} from "../../../../api/groupSettings";
 
 const {
   GROUP_BY,
@@ -30,13 +37,15 @@ const {
   DATE_FORMAT
 } = LOGS_URL_PARAMS;
 
-const title = "Group view settings";
-
 interface Props {
   logs: Logs[];
 }
 
 const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
+  const { t } = useI18n();
+  const { markdownParsing, ansiParsing } = useLogsState();
+  const logsDispatch = useLogsDispatch();
+  const title = t("group.title");
   const [searchParams, setSearchParams] = useSearchParams();
 
   const groupBy = searchParams.get(GROUP_BY) || LOGS_GROUP_BY;
@@ -117,6 +126,80 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
     handleClose();
   };
 
+  const [serverMsg, setServerMsg] = useState("");
+
+  // Auto-load settings from server when panel opens
+  useEffect(() => {
+    if (!openModal) return;
+    (async () => {
+      const settings = await fetchGroupSettingsFromServer();
+      if (!settings) return;
+      if (settings.groupBy) searchParams.set(GROUP_BY, settings.groupBy);
+      if (settings.displayFields) searchParams.set(DISPLAY_FIELDS, settings.displayFields);
+      if (settings.noWrapLines !== undefined) searchParams.set(NO_WRAP_LINES, String(settings.noWrapLines));
+      if (settings.compactGroupHeader !== undefined) searchParams.set(COMPACT_GROUP_HEADER, String(settings.compactGroupHeader));
+      if (settings.dateFormat) {
+        setDateFormat(settings.dateFormat);
+        searchParams.set(DATE_FORMAT, settings.dateFormat);
+      }
+      if (settings.markdownParsing !== undefined) {
+        logsDispatch({ type: "SET_MARKDOWN_PARSING", payload: settings.markdownParsing });
+      }
+      if (settings.ansiParsing !== undefined) {
+        logsDispatch({ type: "SET_ANSI_PARSING", payload: settings.ansiParsing });
+      }
+      if (settings.disabledHovers !== undefined) {
+        handleSetDisabledHovers(settings.disabledHovers);
+      }
+      setSearchParams(searchParams);
+    })();
+  }, [openModal]);
+
+  const handleSaveToServer = useCallback(async () => {
+    const settings: ServerGroupSettings = {
+      groupBy,
+      displayFields: displayFieldsString || LOGS_DISPLAY_FIELDS,
+      noWrapLines,
+      compactGroupHeader,
+      dateFormat,
+      markdownParsing,
+      ansiParsing,
+      disabledHovers,
+    };
+    const ok = await saveGroupSettingsToServer(settings);
+    setServerMsg(ok ? t("group.savedSuccess") : "Error");
+    setTimeout(() => setServerMsg(""), 3000);
+  }, [groupBy, displayFieldsString, noWrapLines, compactGroupHeader, dateFormat, markdownParsing, ansiParsing, disabledHovers, t]);
+
+  const handleLoadFromServer = useCallback(async () => {
+    const settings = await fetchGroupSettingsFromServer();
+    if (!settings) {
+      setServerMsg("Error");
+      setTimeout(() => setServerMsg(""), 3000);
+      return;
+    }
+    if (settings.groupBy) searchParams.set(GROUP_BY, settings.groupBy);
+    if (settings.displayFields) searchParams.set(DISPLAY_FIELDS, settings.displayFields);
+    if (settings.noWrapLines !== undefined) searchParams.set(NO_WRAP_LINES, String(settings.noWrapLines));
+    if (settings.compactGroupHeader !== undefined) searchParams.set(COMPACT_GROUP_HEADER, String(settings.compactGroupHeader));
+    if (settings.dateFormat) {
+      setDateFormat(settings.dateFormat);
+      searchParams.set(DATE_FORMAT, settings.dateFormat);
+    }
+    if (settings.markdownParsing !== undefined) {
+      logsDispatch({ type: "SET_MARKDOWN_PARSING", payload: settings.markdownParsing });
+    }
+    if (settings.ansiParsing !== undefined) {
+      logsDispatch({ type: "SET_ANSI_PARSING", payload: settings.ansiParsing });
+    }
+    if (settings.disabledHovers !== undefined) {
+      handleSetDisabledHovers(settings.disabledHovers);
+    }
+    setSearchParams(searchParams);
+    setServerMsg(t("group.loadedSuccess"));
+    setTimeout(() => setServerMsg(""), 3000);
+  }, [searchParams, setSearchParams, logsDispatch, handleSetDisabledHovers, t]);
+
   const tooltipContent = () => {
     if (!hasChanges) return title;
     return (
@@ -124,11 +207,11 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
         <p>{title}</p>
         <hr/>
         <ul>
-          {isGroupChanged && <li>Group by <code>{`"${groupBy}"`}</code></li>}
-          {isDisplayFieldsChanged && <li>Display fields: {displayFields.length || 1}</li>}
-          {noWrapLines && <li>Single-line text is enabled</li>}
-          {compactGroupHeader && <li>Compact group header is enabled</li>}
-          {isTimeChanged && <li>Date format: <code>{dateFormat}</code></li>}
+          {isGroupChanged && <li>{t("group.groupedBy")} <code>{`"${groupBy}"`}</code></li>}
+          {isDisplayFieldsChanged && <li>{t("group.displayFieldsCount")} {displayFields.length || 1}</li>}
+          {noWrapLines && <li>{t("group.singleLineEnabled")}</li>}
+          {compactGroupHeader && <li>{t("group.compactHeaderEnabled")}</li>}
+          {isTimeChanged && <li>{t("group.dateFormatLabel")} <code>{dateFormat}</code></li>}
         </ul>
       </div>
     );
@@ -157,12 +240,12 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
               <Select
                 value={groupBy}
                 list={[WITHOUT_GROUPING, ...logsKeys]}
-                label="Group by field"
-                placeholder="Group by field"
+                label={t("group.groupByField")}
+                placeholder={t("group.groupByField")}
                 onChange={handleSelectGroupBy}
                 searchable
               />
-              <Tooltip title={"Reset grouping"}>
+              <Tooltip title={t("group.resetGrouping")}>
                 <Button
                   variant="text"
                   color="primary"
@@ -171,7 +254,7 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
                 />
               </Tooltip>
               <span className="vm-group-logs-configurator-item__info">
-                Select a field to group logs by (default: <code>{LOGS_GROUP_BY}</code>).
+                {t("group.selectGroupBy", { default: LOGS_GROUP_BY })}
               </span>
             </div>
 
@@ -179,12 +262,12 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
               <Select
                 value={displayFields}
                 list={logsKeys}
-                label="Display fields"
-                placeholder="Display fields"
+                label={t("group.displayFields")}
+                placeholder={t("group.displayFields")}
                 onChange={handleSelectDisplayField}
                 searchable
               />
-              <Tooltip title={"Clear fields"}>
+              <Tooltip title={t("group.clearFields")}>
                 <Button
                   variant="text"
                   color="primary"
@@ -193,19 +276,19 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
                 />
               </Tooltip>
               <span className="vm-group-logs-configurator-item__info">
-                Select fields to display instead of the message (default: <code>{LOGS_DISPLAY_FIELDS}</code>).
+                {t("group.selectDisplayFields", { default: LOGS_DISPLAY_FIELDS })}
               </span>
             </div>
 
             <div className="vm-group-logs-configurator-item">
               <TextField
                 autofocus
-                label="Date format"
+                label={t("group.dateFormat")}
                 value={dateFormat}
                 onChange={handleChangeDateFormat}
                 error={errorFormat}
               />
-              <Tooltip title={"Reset format"}>
+              <Tooltip title={t("group.resetFormat")}>
                 <Button
                   variant="text"
                   color="primary"
@@ -214,11 +297,10 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
                 />
               </Tooltip>
               <span className="vm-group-logs-configurator-item__info vm-group-logs-configurator-item__info_input">
-                Set the date format (e.g., <code>YYYY-MM-DD HH:mm:ss</code>).
-                Learn more in <Hyperlink
+                {t("group.dateFormatInfo")} <Hyperlink
                   href="https://day.js.org/docs/en/display/format"
-                >this documentation</Hyperlink>. <br/>
-                Your current date format: <code>{dayjs().format(dateFormat || LOGS_DATE_FORMAT)}</code>
+                >{t("group.dateFormatLink")}</Hyperlink>. <br/>
+                {t("group.currentDateFormat")} <code>{dayjs().format(dateFormat || LOGS_DATE_FORMAT)}</code>
               </span>
             </div>
 
@@ -228,10 +310,10 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
               <Switch
                 value={noWrapLines}
                 onChange={toggleWrapLines}
-                label="Single-line message"
+                label={t("group.singleLineMessage")}
               />
               <span className="vm-group-logs-configurator-item__info">
-                Displays message in a single line and truncates it with an ellipsis if it exceeds the available space.
+                {t("group.singleLineInfo")}
               </span>
             </div>
 
@@ -239,10 +321,10 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
               <Switch
                 value={compactGroupHeader}
                 onChange={toggleCompactGroupHeader}
-                label="Compact group header"
+                label={t("group.compactGroupHeader")}
               />
               <span className="vm-group-logs-configurator-item__info">
-                Shows group headers in one line with a &quot;+N more&quot; badge for extra fields.
+                {t("group.compactGroupHeaderInfo")}
               </span>
             </div>
 
@@ -250,11 +332,37 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
               <Switch
                 value={disabledHovers}
                 onChange={handleSetDisabledHovers}
-                label="Disable hover effects"
+                label={t("group.disableHoverEffects")}
               />
               <span className="vm-group-logs-configurator-item__info">
-                Disable row highlighting on hover to improve performance with large datasets.
+                {t("group.disableHoverInfo")}
               </span>
+            </div>
+
+            <div className="vm-group-logs-configurator-item">
+              <div style={{ display: "flex", gap: "8px" }}>
+                <Button
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  onClick={handleSaveToServer}
+                >
+                  {t("group.saveToServer")}
+                </Button>
+                <Button
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  onClick={handleLoadFromServer}
+                >
+                  {t("group.loadFromServer")}
+                </Button>
+              </div>
+              {serverMsg && (
+                <span className="vm-group-logs-configurator-item__info">
+                  {serverMsg}
+                </span>
+              )}
             </div>
           </div>
         </Modal>

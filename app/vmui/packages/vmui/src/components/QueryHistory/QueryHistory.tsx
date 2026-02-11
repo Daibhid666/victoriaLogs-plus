@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "preact/compat";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "preact/compat";
 import Button from "../Main/Button/Button";
 import { ClockIcon, DeleteIcon } from "../Main/Icons";
 import useBoolean from "../../hooks/useBoolean";
@@ -13,6 +13,13 @@ import classNames from "classnames";
 import "./style.scss";
 import { StorageKeys } from "../../utils/storage";
 import { arrayEquals } from "../../utils/array";
+import useI18n from "../../i18n/useI18n";
+import {
+  fetchQueryHistoryFromServer,
+  saveQueryHistoryToServer,
+  clearQueryHistoryOnServer,
+  ServerQueryHistory
+} from "../../api/queryHistory";
 
 interface Props {
   handleSelectQuery: (query: string, index: number) => void
@@ -25,15 +32,16 @@ export const HistoryTabTypes = {
   favorite: "favorite",
 };
 
-export const historyTabs = [
-  { label: "Session history", value: HistoryTabTypes.session },
-  { label: "Saved history", value: HistoryTabTypes.storage },
-  { label: "Favorite queries", value: HistoryTabTypes.favorite },
-];
-
 const QueryHistory: FC<Props> = ({ handleSelectQuery, historyKey }) => {
   const { queryHistory: historyState } = useQueryState();
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
+
+  const historyTabs = useMemo(() => [
+    { label: t("history.sessionHistory"), value: HistoryTabTypes.session },
+    { label: t("history.savedHistory"), value: HistoryTabTypes.storage },
+    { label: t("history.favoriteQueries"), value: HistoryTabTypes.favorite },
+  ], [t]);
 
   const {
     value: openModal,
@@ -65,11 +73,11 @@ const QueryHistory: FC<Props> = ({ handleSelectQuery, historyKey }) => {
   const noDataText = useMemo(() => {
     switch (activeTab) {
       case HistoryTabTypes.favorite:
-        return "Favorites queries are empty.\nTo see your favorites, mark a query as a favorite.";
+        return t("history.emptyFavorites");
       default:
-        return "Query history is empty.\nTo see the history, please make a query.";
+        return t("history.emptyHistory");
     }
-  }, [activeTab]);
+  }, [activeTab, t]);
 
   const handleRunQuery = (group: number) => (value: string) => {
     handleSelectQuery(value, group);
@@ -85,22 +93,57 @@ const QueryHistory: FC<Props> = ({ handleSelectQuery, historyKey }) => {
     });
   };
 
+  // Guard to prevent syncing back to server while loading from server
+  const isLoadingFromServer = useRef(false);
+
+  // Sync saved history and favorites with server
+  const loadFromServer = useCallback(async () => {
+    isLoadingFromServer.current = true;
+    const serverData = await fetchQueryHistoryFromServer();
+    if (serverData) {
+      if (serverData.QUERY_FAVORITES) setHistoryFavorites(serverData.QUERY_FAVORITES);
+      if (serverData.QUERY_HISTORY) setHistoryStorage(serverData.QUERY_HISTORY);
+    }
+    // Allow effects to settle before re-enabling sync
+    setTimeout(() => { isLoadingFromServer.current = false; }, 100);
+  }, []);
+
+  const syncToServer = useCallback(async (history: string[][], favorites: string[][]) => {
+    const payload: ServerQueryHistory = {
+      QUERY_HISTORY: history,
+      QUERY_FAVORITES: favorites,
+    };
+    await saveQueryHistoryToServer(payload);
+  }, []);
+
   const updateStageHistory = () => {
     setHistoryStorage(getQueriesFromStorage(historyKey, "QUERY_HISTORY"));
     setHistoryFavorites(getQueriesFromStorage(historyKey, "QUERY_FAVORITES"));
   };
 
-  const handleClearStorage = () => {
+  const handleClearStorage = async () => {
     clearQueryHistoryStorage(historyKey, "QUERY_HISTORY");
+    await clearQueryHistoryOnServer();
+    setHistoryStorage([]);
   };
 
   useEffect(() => {
+    if (isLoadingFromServer.current) return;
     const nextValue = historyFavorites[0] || [];
     const prevValue = getQueriesFromStorage(historyKey, "QUERY_FAVORITES")[0] || [];
     const isEqual = arrayEquals(nextValue, prevValue);
     if (isEqual) return;
     setFavoriteQueriesToStorage(historyKey, historyFavorites);
+    // Also sync favorites to server
+    syncToServer(historyStorage, historyFavorites);
   }, [historyFavorites]);
+
+  // Load from server when modal opens
+  useEffect(() => {
+    if (openModal) {
+      loadFromServer();
+    }
+  }, [openModal, loadFromServer]);
 
   useEventListener("storage", updateStageHistory);
 
@@ -111,14 +154,14 @@ const QueryHistory: FC<Props> = ({ handleSelectQuery, historyKey }) => {
         variant="outlined"
         onClick={handleOpenModal}
         startIcon={<ClockIcon/>}
-        ariaLabel={"Query history"}
+        ariaLabel={t("history.title")}
       >
-        {!isMobile && "Query history"}
+        {!isMobile && t("history.title")}
       </Button>
 
       {openModal && (
         <Modal
-          title={"Query history"}
+          title={t("history.title")}
           onClose={handleCloseModal}
         >
           <div
@@ -151,7 +194,7 @@ const QueryHistory: FC<Props> = ({ handleSelectQuery, historyKey }) => {
                         "vm-query-history-list__group-title_first": group === 0,
                       })}
                     >
-                      Query {group + 1}
+                      {t("history.queryN")} {group + 1}
                     </div>
                   )}
                   {queries.map((query, index) => (
@@ -174,7 +217,7 @@ const QueryHistory: FC<Props> = ({ handleSelectQuery, historyKey }) => {
                     startIcon={<DeleteIcon/>}
                     onClick={handleClearStorage}
                   >
-                    clear history
+                    {t("history.clearHistory")}
                   </Button>
                 </div>
               )}

@@ -1,4 +1,4 @@
-import { FC, useRef } from "preact/compat";
+import { FC, useMemo, useRef } from "preact/compat";
 import {
   CodeIcon,
   ListIcon,
@@ -25,6 +25,7 @@ import Button from "../../../components/Main/Button/Button";
 import { useSearchParams } from "react-router-dom";
 import Alert from "../../../components/Main/Alert/Alert";
 import DownloadLogsModal from "../../../components/DownloadLogs/DownloadLogsModal";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props {
   data: Logs[];
@@ -40,15 +41,16 @@ enum DisplayType {
   liveTailing = "liveTailing",
 }
 
-const tabs = [
-  { label: "Group", value: DisplayType.group, icon: <ListIcon/>, Component: GroupView },
-  { label: "Table", value: DisplayType.table, icon: <TableIcon/>, Component: TableView },
-  { label: "JSON", value: DisplayType.json, icon: <CodeIcon/>, Component: JsonLogsView },
-  { label: "Live", value: DisplayType.liveTailing, icon: <PlayIcon/>, Component: LiveTailingView },
-];
-
 const QueryPageBody: FC<Props> = ({ data, queryParams, isLoading, isPreview }) => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
+
+  const tabs = useMemo(() => [
+    { label: t("body.group"), value: DisplayType.group, icon: <ListIcon/>, Component: GroupView },
+    { label: t("body.table"), value: DisplayType.table, icon: <TableIcon/>, Component: TableView },
+    { label: t("body.json"), value: DisplayType.json, icon: <CodeIcon/>, Component: JsonLogsView },
+    { label: t("body.live"), value: DisplayType.liveTailing, icon: <PlayIcon/>, Component: LiveTailingView },
+  ], [t]);
   const { setSearchParamsFromKeys } = useSearchParamsFromObject();
   const [activeTab, setActiveTab] = useStateSearchParams(DisplayType.group, "view");
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -108,15 +110,15 @@ const QueryPageBody: FC<Props> = ({ data, queryParams, isLoading, isPreview }) =
         >
           <div ref={settingsRef}/>
           <DownloadLogsModal queryParams={queryParams}>
-            <Tooltip title="Download Logs">
+            <Tooltip title={t("body.downloadLogs")}>
               <Button
                 variant="text"
                 startIcon={<DownloadIcon/>}
-                ariaLabel="Download Logs"
+                ariaLabel={t("body.downloadLogs")}
               />
             </Tooltip>
           </DownloadLogsModal>
-          <Tooltip title={hideLogs ? "Show Logs" : "Hide Logs"}>
+          <Tooltip title={hideLogs ? t("body.showLogs") : t("body.hideLogs")}>
             <Button
               variant="text"
               color="primary"
@@ -136,7 +138,7 @@ const QueryPageBody: FC<Props> = ({ data, queryParams, isLoading, isPreview }) =
         })}
       >
         {hideLogs && (
-          <Alert variant="info">Logs are hidden. Updates paused.</Alert>
+          <Alert variant="info">{t("body.logsHidden")}</Alert>
         )}
 
         {!hideLogs && ActiveTabComponent &&

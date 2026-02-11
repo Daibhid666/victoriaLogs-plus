@@ -14,6 +14,7 @@ import useBoolean from "../../../hooks/useBoolean";
 import { useQuickAutocomplete } from "../../../hooks/useQuickAutocomplete";
 import { AUTOCOMPLETE_QUICK_KEY } from "../../../components/Main/ShortcutKeys/constants/keyList";
 import Tooltip from "../../../components/Main/Tooltip/Tooltip";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props {
   query: string;
@@ -39,6 +40,7 @@ const QueryPageHeader: FC<Props> = ({
   const { isMobile } = useDeviceDetect();
   const { autocomplete, queryHistory, autocompleteQuick } = useQueryState();
   const queryDispatch = useQueryDispatch();
+  const { t } = useI18n();
   const setQuickAutocomplete = useQuickAutocomplete();
 
   const { value: awaitQuery, setValue: setAwaitQuery } = useBoolean(false);
@@ -98,7 +100,7 @@ const QueryPageHeader: FC<Props> = ({
           onArrowDown={createHandlerArrow(1)}
           onEnter={onRun}
           onChange={onChangeHandle}
-          label={"Log query"}
+          label={t("query.logQuery")}
           error={error}
           stats={{
             executionTimeMsec: queryDurationMs,
@@ -114,7 +116,7 @@ const QueryPageHeader: FC<Props> = ({
         <div className="vm-query-page-header-bottom-contols">
           <Tooltip title={<>Quick tip: {AUTOCOMPLETE_QUICK_KEY}</>}>
             <Switch
-              label={"Autocomplete"}
+              label={t("query.autocomplete")}
               value={autocomplete}
               onChange={onChangeAutocomplete}
             />
@@ -129,7 +131,7 @@ const QueryPageHeader: FC<Props> = ({
               rel="help noreferrer"
             >
               <InfoIcon/>
-              Query language docs
+              {t("query.langDocs")}
             </a>
             <a
               className="vm-link vm-link_with-icon"
@@ -138,7 +140,7 @@ const QueryPageHeader: FC<Props> = ({
               rel="help noreferrer"
             >
               <WikiIcon/>
-              Documentation
+              {t("query.documentation")}
             </a>
           </div>
         )}
@@ -154,10 +156,10 @@ const QueryPageHeader: FC<Props> = ({
               fullWidth
             >
               <div>
-                <span className="vm-query-page-header-bottom-execute__text">
-                  {isLoading ? "Cancel Query" : "Execute Query"}
+              <span className="vm-query-page-header-bottom-execute__text">
+                  {isLoading ? t("query.cancel") : t("query.execute")}
                 </span>
-                <span className="vm-query-page-header-bottom-execute__text_hidden">Execute Query</span>
+                <span className="vm-query-page-header-bottom-execute__text_hidden">{t("query.execute")}</span>
               </div>
             </Button>
           </div>

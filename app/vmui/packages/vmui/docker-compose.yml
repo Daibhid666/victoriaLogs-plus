@@ -1,0 +1,19 @@
+services:
+  vmui:
+    build: .
+    ports:
+      - "8088:80"
+    depends_on:
+      - victorialogs
+    restart: unless-stopped
+
+  victorialogs:
+    image: victoriametrics/victoria-logs:latest
+    ports:
+      - "9428:9428"
+    volumes:
+      - vlogs-data:/victoria-logs-data
+    restart: unless-stopped
+
+volumes:
+  vlogs-data:

@@ -1,10 +1,12 @@
 import { FC } from "preact/compat";
 import Switch from "../../Main/Switch/Switch";
 import { useLogsDispatch, useLogsState } from "../../../state/logsPanel/LogsStateContext";
+import useI18n from "../../../i18n/useI18n";
 
 const LogParsingSwitches: FC = () => {
   const { markdownParsing, ansiParsing } = useLogsState();
   const dispatch = useLogsDispatch();
+  const { t } = useI18n();
 
   const handleChangeMarkdownParsing = (val: boolean) => {
     dispatch({ type: "SET_MARKDOWN_PARSING", payload: val });
@@ -26,24 +28,22 @@ const LogParsingSwitches: FC = () => {
     <>
       <div className="vm-group-logs-configurator-item">
         <Switch
-          label={"Enable markdown parsing"}
+          label={t("parsing.enableMarkdown")}
           value={markdownParsing}
           onChange={handleChangeMarkdownParsing}
         />
         <div className="vm-group-logs-configurator-item__info">
-          Toggle this switch to enable or disable the Markdown formatting for log entries.
-          Enabling this will parse log texts to Markdown.
+          {t("parsing.markdownInfo")}
         </div>
       </div>
       <div className="vm-group-logs-configurator-item">
         <Switch
-          label={"Enable ANSI parsing"}
+          label={t("parsing.enableAnsi")}
           value={ansiParsing}
           onChange={handleChangeAnsiParsing}
         />
         <div className="vm-group-logs-configurator-item__info">
-          Toggle this switch to enable or disable ANSI escape sequence parsing for log entries.
-          Enabling this will interpret ANSI codes to render colored log output.
+          {t("parsing.ansiInfo")}
         </div>
       </div>
     </>

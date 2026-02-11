@@ -19,6 +19,7 @@ import useBoolean from "../../../../hooks/useBoolean";
 import useWindowSize from "../../../../hooks/useWindowSize";
 import usePrevious from "../../../../hooks/usePrevious";
 import { useQueryState } from "../../../../state/query/QueryStateContext";
+import useI18n from "../../../../i18n/useI18n";
 
 type Props = {
   onOpenSettings?: () => void;
@@ -28,6 +29,7 @@ export const TimeSelector: FC<Props> = ({ onOpenSettings }) => {
   const { isMobile } = useDeviceDetect();
   const { isDarkTheme } = useAppState();
   const { queryHasTimeFilter } = useQueryState();
+  const { t } = useI18n();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const documentSize = useWindowSize();
@@ -132,13 +134,13 @@ export const TimeSelector: FC<Props> = ({ onOpenSettings }) => {
         >
           <span className="vm-mobile-option__icon"><ClockIcon/></span>
           <div className="vm-mobile-option-text">
-            <span className="vm-mobile-option-text__label">Time range</span>
+            <span className="vm-mobile-option-text__label">{t("time.range")}</span>
             <span className="vm-mobile-option-text__value">{dateTitle}</span>
           </div>
           <span className="vm-mobile-option__arrow"><ArrowDownIcon/></span>
         </div>
       ) : (
-        <Tooltip title={displayFullDate ? "Time range controls" : dateTitle}>
+        <Tooltip title={displayFullDate ? t("time.rangeControls") : dateTitle}>
           <Button
             className={appModeEnable ? "" : "vm-header-button"}
             variant="contained"
@@ -158,7 +160,7 @@ export const TimeSelector: FC<Props> = ({ onOpenSettings }) => {
       placement="bottom-right"
       onClose={handleCloseOptions}
       clickOutside={false}
-      title={isMobile ? "Time range controls" : ""}
+      title={isMobile ? t("time.rangeControls") : ""}
     >
       <div
         className={classNames({
@@ -169,13 +171,13 @@ export const TimeSelector: FC<Props> = ({ onOpenSettings }) => {
       >
         {queryHasTimeFilter && (
           <div className="vm-time-selector-warning">
-            <p>Time range is overridden by the query `_time` filter.</p>
-            <p>Remove `_time` from the query to use manual selection.</p>
+            <p>{t("time.overrideWarning")}</p>
+            <p>{t("time.removeTimeHint")}</p>
             <p
               className="vm-time-selector-warning__interactive"
               onClick={handleOpenSettings}
             >
-              To disable query time override in settings, click here.
+              {t("time.disableOverrideHint")}
             </p>
           </div>
         )}
@@ -189,16 +191,16 @@ export const TimeSelector: FC<Props> = ({ onOpenSettings }) => {
           >
             <DateTimeInput
               value={from}
-              label="From:"
-              pickerLabel="Date From"
+              label={t("time.from")}
+              pickerLabel={t("time.dateFrom")}
               pickerRef={fromPickerRef}
               onChange={setFrom}
               onEnter={setTimeAndClosePicker}
             />
             <DateTimeInput
               value={until}
-              label="To:"
-              pickerLabel="Date To"
+              label={t("time.to")}
+              pickerLabel={t("time.dateTo")}
               pickerRef={untilPickerRef}
               onChange={setUntil}
               onEnter={setTimeAndClosePicker}
@@ -216,7 +218,7 @@ export const TimeSelector: FC<Props> = ({ onOpenSettings }) => {
             startIcon={<AlarmIcon />}
             onClick={onSwitchToNow}
           >
-            switch to now
+            {t("time.switchToNow")}
           </Button>
           <div className="vm-time-selector-left__controls">
             <Button
@@ -224,13 +226,13 @@ export const TimeSelector: FC<Props> = ({ onOpenSettings }) => {
               variant="outlined"
               onClick={onCancelClick}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
               onClick={setTimeAndClosePicker}
             >
-              Apply
+              {t("common.apply")}
             </Button>
           </div>
         </div>
