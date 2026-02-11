@@ -1,5 +1,6 @@
 services:
   vmui:
+    image: ghcr.io/daibhid666/vmui:latest
     build: .
     ports:
       - "8088:80"
