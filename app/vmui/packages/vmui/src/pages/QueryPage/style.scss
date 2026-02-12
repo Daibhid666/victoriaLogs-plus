@@ -1,6 +1,7 @@
 @use "src/styles/variables" as *;
 
 .vm-query-page {
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr;
   align-items: flex-start;

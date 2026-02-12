@@ -5,6 +5,7 @@ import LogsLimitInput from "./LogsLimitInput";
 import "./style.scss";
 import Checkbox from "../../../components/Main/Checkbox/Checkbox";
 import DownloadLogsModal from "../../../components/DownloadLogs/DownloadLogsModal";
+import useI18n from "../../../i18n/useI18n";
 
 type Props = {
   isOpen: boolean;
@@ -29,7 +30,7 @@ const LimitConfirmModal: FC<Props> = ({
   onConfirm,
   onCancel
 }) => {
-  const limitText = !initialLimit ? "an unlimited number of" : initialLimit.toLocaleString("en-US");
+  const { t } = useI18n();
   const [error, setError] = useState(false);
 
   useEffect(() => () => onCancel(), [onCancel]);
@@ -38,15 +39,15 @@ const LimitConfirmModal: FC<Props> = ({
 
   return (
     <Modal
-      title={"Confirm large load"}
+      title={t("limitConfirm.title")}
       isOpen={isOpen}
       onClose={onCancel}
     >
       <div className="vm-logs-limit-modal">
         <div className="vm-logs-limit-modal-text">
-          <p>You’re about to load <b>{limitText}</b> logs.</p>
-          <p>This may slow down the app or make the UI unresponsive.</p>
-          <p>Are you sure you want to continue?</p>
+          <p dangerouslySetInnerHTML={{ __html: !initialLimit ? t("limitConfirm.unlimitedLoad") : t("limitConfirm.aboutToLoad", { limit: initialLimit.toLocaleString("en-US") }) }} />
+          <p>{t("limitConfirm.maySlowDown")}</p>
+          <p>{t("limitConfirm.areYouSure")}</p>
         </div>
 
         <div className="vm-logs-limit-modal-input">
@@ -60,7 +61,7 @@ const LimitConfirmModal: FC<Props> = ({
 
         <DownloadLogsModal queryParams={queryParams}>
           <p className="vm-logs-limit-modal-download vm-link vm-link_colored vm-link_underlined">
-            Click to download all matching logs without a limit.
+            {t("limitConfirm.downloadHint")}
           </p>
         </DownloadLogsModal>
 
@@ -68,7 +69,7 @@ const LimitConfirmModal: FC<Props> = ({
           <div>
             <Checkbox
               color="primary"
-              label="Don't show again in this tab"
+              label={t("limitConfirm.dontShowAgain")}
               checked={suppressWarning}
               onChange={onChangeSuppressWarning}
             />
@@ -81,13 +82,13 @@ const LimitConfirmModal: FC<Props> = ({
               variant="outlined"
               onClick={onCancel}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={onConfirm}
               disabled={error}
             >
-              Load Logs
+              {t("limitConfirm.loadLogs")}
             </Button>
           </div>
         </div>

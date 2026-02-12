@@ -7,6 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import { LOGS_GROUP_BY, LOGS_URL_PARAMS } from "../../../constants/logs";
 import classNames from "classnames";
 import useDeviceDetect from "../../../hooks/useDeviceDetect";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props {
   field: string;
@@ -16,6 +17,7 @@ interface Props {
 
 const GroupLogsFieldRow: FC<Props> = ({ field, value, hideGroupButton }) => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
   const copyToClipboard = useCopyToClipboard();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -65,7 +67,7 @@ const GroupLogsFieldRow: FC<Props> = ({ field, value, hideGroupButton }) => {
     >
       <td className="vm-group-logs-row-fields-item-controls">
         <div className="vm-group-logs-row-fields-item-controls__wrapper">
-          <Tooltip title={copied ? "Copied" : "Copy to clipboard"}>
+          <Tooltip title={copied ? t("common.copied") : t("common.copyToClipboard")}>
             <Button
               className="vm-group-logs-row-fields-item-controls__button"
               variant="text"
@@ -76,7 +78,7 @@ const GroupLogsFieldRow: FC<Props> = ({ field, value, hideGroupButton }) => {
               ariaLabel="copy to clipboard"
             />
           </Tooltip>
-          <Tooltip title={isSelectedField ? "Hide this field" : "Show this field instead of the message"}>
+          <Tooltip title={isSelectedField ? t("groupLogs.hideField") : t("groupLogs.showField")}>
             <Button
               className="vm-group-logs-row-fields-item-controls__button"
               variant="text"
@@ -84,11 +86,11 @@ const GroupLogsFieldRow: FC<Props> = ({ field, value, hideGroupButton }) => {
               size="small"
               startIcon={isSelectedField ? <VisibilityIcon/> : <VisibilityIcon/>}
               onClick={handleSelectDisplayField}
-              ariaLabel={isSelectedField ? "Hide this field" : "Show this field instead of the message"}
+              ariaLabel={isSelectedField ? t("groupLogs.hideField") : t("groupLogs.showField")}
             />
           </Tooltip>
           {!hideGroupButton && (
-            <Tooltip title={isGroupByField ? "Ungroup this field" : "Group by this field"}>
+            <Tooltip title={isGroupByField ? t("groupLogs.ungroupField") : t("groupLogs.groupByField")}>
               <Button
                 className="vm-group-logs-row-fields-item-controls__button"
                 variant="text"
@@ -96,7 +98,7 @@ const GroupLogsFieldRow: FC<Props> = ({ field, value, hideGroupButton }) => {
                 size="small"
                 startIcon={<StorageIcon/>}
                 onClick={handleSelectGroupBy}
-                ariaLabel={isGroupByField ? "Ungroup this field" : "Group by this field"}
+                ariaLabel={isGroupByField ? t("groupLogs.ungroupField") : t("groupLogs.groupByField")}
               />
             </Tooltip>
           )}

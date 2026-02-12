@@ -7,8 +7,8 @@ export const getFieldCol = (title: string): Column<LogsFiledValues> => ({
   key: "value" as keyof LogsFiledValues,
 });
 
-export const getHitsCol = () => ({
-  title: "Hits",
+export const getHitsCol = (t?: (key: any) => string) => ({
+  title: t ? t("columns.hits") : "Hits",
   isNum: true,
   className: "vm-top-fields__cell-value",
   key: "hits" as keyof LogsFiledValues,

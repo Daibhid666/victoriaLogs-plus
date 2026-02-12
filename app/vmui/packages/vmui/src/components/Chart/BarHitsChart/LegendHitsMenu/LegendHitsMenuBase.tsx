@@ -5,6 +5,7 @@ import { CopyIcon, FilterIcon, FilterOffIcon } from "../../../Main/Icons";
 import { LegendLogHits, LegendLogHitsMenu } from "../../../../api/types";
 import { ExtraFilter, ExtraFilterOperator } from "../../../../pages/OverviewPage/FiltersBar/types";
 import { useHitsChartConfig } from "../../../../pages/QueryPage/HitsChart/hooks/useHitsChartConfig";
+import useI18n from "../../../../i18n/useI18n";
 
 interface Props {
   legend: LegendLogHits;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const LegendHitsMenuBase: FC<Props> = ({ legend, onApplyFilter, onClose }) => {
+  const { t } = useI18n();
   const copyToClipboard = useCopyToClipboard();
   const {
     groupFieldHits: { value: groupFieldHits },
@@ -28,23 +30,23 @@ const LegendHitsMenuBase: FC<Props> = ({ legend, onApplyFilter, onClose }) => {
   };
 
   const handlerCopyLabel = async () => {
-    await copyToClipboard(legend.label, `${legend.label} has been copied`);
+    await copyToClipboard(legend.label, t("common.valueCopied", { value: legend.label }));
     onClose();
   };
 
   const options: LegendLogHitsMenu[] = [
     {
-      title: `Copy ${groupFieldHits} name`,
+      title: t("legend.copyName", { field: groupFieldHits }),
       iconStart: <CopyIcon/>,
       handler: handlerCopyLabel,
     },
     {
-      title: `Add ${groupFieldHits} to filter`,
+      title: t("legend.addToFilter", { field: groupFieldHits }),
       iconStart: <FilterIcon/>,
       handler:  handleAddStreamToFilter(ExtraFilterOperator.Equals),
     },
     {
-      title: `Exclude ${groupFieldHits} to filter`,
+      title: t("legend.excludeFromFilter", { field: groupFieldHits }),
       iconStart: <FilterOffIcon/>,
       handler: handleAddStreamToFilter(ExtraFilterOperator.NotEquals),
     }

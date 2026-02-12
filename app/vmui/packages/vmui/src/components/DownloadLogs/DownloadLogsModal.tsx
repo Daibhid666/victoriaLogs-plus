@@ -10,6 +10,7 @@ import { DATE_TIME_FORMAT } from "../../constants/date";
 import { DownloadIcon, SpinnerIcon } from "../Main/Icons";
 import Alert from "../Main/Alert/Alert";
 import useDownloadLogs from "./useDownloadLogs";
+import useI18n from "../../i18n/useI18n";
 
 type Props = {
   children: ReactNode;
@@ -26,6 +27,7 @@ const DownloadLogsModal: FC<Props> = ({ children, queryParams }) => {
   } = useBoolean(false);
 
   const { downloadLogs, error, isLoading } = useDownloadLogs();
+  const { t } = useI18n();
 
   const [filename, setFilename] = useState("vmui_logs_export");
 
@@ -58,13 +60,13 @@ const DownloadLogsModal: FC<Props> = ({ children, queryParams }) => {
 
       {isOpen && (
         <Modal
-          title="Download logs"
+          title={t("download.title")}
           onClose={handleClose}
         >
           <div className="vm-download-logs">
             <div className="vm-download-logs-section">
               <h3 className="vm-download-logs-section__title">
-                File name
+                {t("download.fileName")}
               </h3>
 
               <div className="vm-download-logs-filename">
@@ -77,7 +79,7 @@ const DownloadLogsModal: FC<Props> = ({ children, queryParams }) => {
               </div>
 
               <div className="vm-download-logs__description">
-                This will download all logs for {period} using your current query for tenant {tenant}.
+                {t("download.description", { period, tenant })}
               </div>
             </div>
 
@@ -89,7 +91,7 @@ const DownloadLogsModal: FC<Props> = ({ children, queryParams }) => {
                 variant="outlined"
                 onClick={handleClose}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
 
               <Button
@@ -99,7 +101,7 @@ const DownloadLogsModal: FC<Props> = ({ children, queryParams }) => {
                 disabled={isLoading}
                 startIcon={isLoading ? <SpinnerIcon/> : <DownloadIcon/>}
               >
-                Download
+                {t("download.download")}
               </Button>
             </div>
           </div>

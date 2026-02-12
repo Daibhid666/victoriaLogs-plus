@@ -155,7 +155,28 @@ const QueryPage: FC = () => {
   const debouncedHandleRunQuery = useDebounceCallback(handleRunQuery, 300);
 
   const handleApplyFilter = (val: ExtraFilter) => {
-    setQuery(prev => `${filterToExpr(val)} AND ${prev}`);
+    const expr = filterToExpr(val);
+    setQuery(prev => {
+      // Prevent adding duplicate filter expressions
+      if (prev.includes(expr)) return prev;
+      return `${expr} AND ${prev}`;
+    });
+    setIsUpdatingQuery(true);
+  };
+
+  const handleRemoveFilter = (val: ExtraFilter) => {
+    const expr = filterToExpr(val);
+    setQuery(prev => {
+      // Remove "expr AND " or " AND expr" patterns from the query
+      let next = prev;
+      // Try removing "expr AND " (filter at the beginning or middle)
+      next = next.replace(new RegExp(expr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s+AND\\s+", "g"), "");
+      // Try removing " AND expr" (filter at the end)
+      next = next.replace(new RegExp("\\s+AND\\s+" + expr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), "");
+      // If the entire query was just the expression
+      if (next.trim() === expr.trim()) next = "*";
+      return next || "*";
+    });
     setIsUpdatingQuery(true);
   };
 
@@ -238,6 +259,9 @@ const QueryPage: FC = () => {
         onChangeLimit={handleChangeLimit}
         onRun={handleUpdateQuery}
         isLoading={isLoading || dataLogHits.isLoading}
+        period={period}
+        onApplyFilter={handleApplyFilter}
+        onRemoveFilter={handleRemoveFilter}
       />
       {error && <Alert variant="error">{error}</Alert>}
       {queryHasTimeFilter && <Alert variant="warning">

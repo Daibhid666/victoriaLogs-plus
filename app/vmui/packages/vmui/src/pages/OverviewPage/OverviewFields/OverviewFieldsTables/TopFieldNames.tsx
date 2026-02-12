@@ -6,15 +6,17 @@ import { LogsFiledValues } from "../../../../api/types";
 import { useFieldFilter } from "../../hooks/useFieldFilter";
 import OverviewTable from "../../OverviewTable/OverviewTable";
 import "../../OverviewTable/style.scss";
-import { fieldNamesCol } from "../columns";
+import { getFieldNamesCol } from "../columns";
 import { useOverviewState } from "../../../../state/overview/OverviewStateContext";
 import { ExtraFilterOperator } from "../../FiltersBar/types";
 import TopRowMenu from "../FieldRowMenu/TopRowMenu";
 import { CopyIcon, FilterIcon, FilterOffIcon, FocusIcon, UnfocusIcon } from "../../../../components/Main/Icons";
 import useCopyToClipboard from "../../../../hooks/useCopyToClipboard";
 import { altKeyLabel, ctrlKeyLabel } from "../../../../utils/keyboard";
+import useI18n from "../../../../i18n/useI18n";
 
 const TopFieldNames: FC = () => {
+  const { t } = useI18n();
   const { period: { start, end } } = useTimeState();
   const { fetchFieldNames, fieldNames, loading, error } = useFetchFieldNames();
   const { extraParams, addNewFilter } = useExtraFilters();
@@ -45,7 +47,7 @@ const TopFieldNames: FC = () => {
 
   const handleCopy = async (row: LogsFiledValues) => {
     const copyValue = row.value;
-    await copyToClipboard(copyValue, `\`${copyValue}\` has been copied`);
+    await copyToClipboard(copyValue, t("common.valueCopied", { value: `\`${copyValue}\`` }));
   };
 
   const handleClickRow = (row: LogsFiledValues, e: MouseEvent) => {
@@ -72,27 +74,27 @@ const TopFieldNames: FC = () => {
   const TableAction = (row: LogsFiledValues) => {
     const menu = [
       [{
-        label: fieldFilter === row.value ? "Unfocus" : "Focus",
+        label: fieldFilter === row.value ? t("overviewFields.unfocus") : t("overviewFields.focus"),
         icon: fieldFilter === row.value ? <UnfocusIcon/> : <FocusIcon/>,
         shortcut: "Click",
         onClick: () => selectField(row)
       }],
       [
         {
-          label: "Include",
+          label: t("overviewFields.include"),
           icon: <FilterIcon/>,
           shortcut: `${altKeyLabel} + Click`,
           onClick: () => handleAddIncludeFilter(row)
         },
         {
-          label: "Exclude",
+          label: t("overviewFields.exclude"),
           icon: <FilterOffIcon/>,
           shortcut: `${ctrlKeyLabel} + Click`,
           onClick: () => handleAddExcludeFilter(row)
         },
       ],
       [{
-        label: "Copy",
+        label: t("common.copy"),
         icon: <CopyIcon/>,
         onClick: () => handleCopy(row)
       }],
@@ -103,13 +105,13 @@ const TopFieldNames: FC = () => {
   return (
     <OverviewTable
       enableSearch
-      title="Field names"
+      title={t("overviewFields.fieldNames")}
       rows={rows}
-      columns={fieldNamesCol}
+      columns={getFieldNamesCol(t)}
       isLoading={loading}
       error={error}
       isEmptyList={isEmptyList}
-      emptyListText="No field names found"
+      emptyListText={t("overviewFields.noFieldNamesFound")}
       onClickRow={handleClickRow}
       detectActiveRow={detectActiveRow}
       actionsRender={TableAction}

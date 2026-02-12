@@ -4,7 +4,7 @@ import { useExtraFilters } from "../../hooks/useExtraFilters";
 import { LogsFiledValues } from "../../../../api/types";
 import { useStreamFieldFilter } from "../../hooks/useFieldFilter";
 import { useFetchStreamFieldNames } from "../../hooks/useFetchStreamNames";
-import { streamFieldNamesCol } from "../columns";
+import { getStreamFieldNamesCol } from "../columns";
 import "../../OverviewTable/style.scss";
 import OverviewTable from "../../OverviewTable/OverviewTable";
 import { useOverviewState } from "../../../../state/overview/OverviewStateContext";
@@ -13,8 +13,10 @@ import useCopyToClipboard from "../../../../hooks/useCopyToClipboard";
 import { CopyIcon, FilterIcon, FilterOffIcon, FocusIcon, UnfocusIcon } from "../../../../components/Main/Icons";
 import TopRowMenu from "../FieldRowMenu/TopRowMenu";
 import { altKeyLabel, ctrlKeyLabel } from "../../../../utils/keyboard";
+import useI18n from "../../../../i18n/useI18n";
 
 const TopStreamNames: FC = () => {
+  const { t } = useI18n();
   const { period: { start, end } } = useTimeState();
   const { fetchStreamFieldNames, streamFieldNames, loading, error } = useFetchStreamFieldNames();
   const { extraParams, addNewFilter } = useExtraFilters();
@@ -45,7 +47,7 @@ const TopStreamNames: FC = () => {
 
   const handleCopy = async (row: LogsFiledValues) => {
     const copyValue = row.value;
-    await copyToClipboard(copyValue, `\`${copyValue}\` has been copied`);
+    await copyToClipboard(copyValue, t("common.valueCopied", { value: `\`${copyValue}\`` }));
   };
 
   const handleClickRow = (row: LogsFiledValues, e: MouseEvent) => {
@@ -72,27 +74,27 @@ const TopStreamNames: FC = () => {
   const TableAction = (row: LogsFiledValues) => {
     const menu = [
       [{
-        label: streamFieldFilter === row.value ? "Unfocus" : "Focus",
+        label: streamFieldFilter === row.value ? t("overviewFields.unfocus") : t("overviewFields.focus"),
         icon: streamFieldFilter === row.value ? <UnfocusIcon/> : <FocusIcon/>,
         shortcut: "Click",
         onClick: () => selectField(row)
       }],
       [
         {
-          label: "Include",
+          label: t("overviewFields.include"),
           icon: <FilterIcon/>,
           shortcut: `${altKeyLabel} + Click`,
           onClick: () => handleAddIncludeFilter(row)
         },
         {
-          label: "Exclude",
+          label: t("overviewFields.exclude"),
           icon: <FilterOffIcon/>,
           shortcut: `${ctrlKeyLabel} + Click`,
           onClick: () => handleAddExcludeFilter(row)
         }
       ],
       [{
-        label: "Copy",
+        label: t("common.copy"),
         icon: <CopyIcon/>,
         onClick: () => handleCopy(row)
       }],
@@ -103,13 +105,13 @@ const TopStreamNames: FC = () => {
   return (
     <OverviewTable
       enableSearch
-      title="Stream field names"
+      title={t("overviewFields.streamFieldNames")}
       rows={rows}
-      columns={streamFieldNamesCol}
+      columns={getStreamFieldNamesCol(t)}
       isLoading={loading}
       error={error}
       isEmptyList={isEmptyList}
-      emptyListText="No field names found"
+      emptyListText={t("overviewFields.noFieldNamesFound")}
       onClickRow={handleClickRow}
       detectActiveRow={detectActiveRow}
       actionsRender={TableAction}

@@ -6,7 +6,7 @@ import { useFieldFilter, useStreamFieldFilter } from "../../hooks/useFieldFilter
 import { useFetchLogs } from "../../../QueryPage/hooks/useFetchLogs";
 import { LogsFiledValues } from "../../../../api/types";
 import { ExtraFilterOperator } from "../../FiltersBar/types";
-import { fieldValuesCol, streamFieldValuesCol } from "../columns";
+import { getFieldValuesCol, getStreamFieldValuesCol } from "../columns";
 import OverviewTable from "../../OverviewTable/OverviewTable";
 import "../../OverviewTable/style.scss";
 import SelectLimit from "../../../../components/Main/Pagination/SelectLimit/SelectLimit";
@@ -16,26 +16,28 @@ import useCopyToClipboard from "../../../../hooks/useCopyToClipboard";
 import { CopyIcon, FilterIcon, FilterOffIcon, FocusIcon, UnfocusIcon } from "../../../../components/Main/Icons";
 import TopRowMenu from "../FieldRowMenu/TopRowMenu";
 import { altKeyLabel, ctrlKeyLabel } from "../../../../utils/keyboard";
+import useI18n from "../../../../i18n/useI18n";
 
-const MODE_CONFIG = {
+const MODE_KEYS = {
   top: {
-    title: "Top N",
-    description: "Most common values (highest hit counts)"
+    titleKey: "overviewFields.topN" as const,
+    descKey: "overviewFields.topDescription" as const,
   },
   bottom: {
-    title: "Bottom N",
-    description: "Least common values (fewest hit counts)",
+    titleKey: "overviewFields.bottomN" as const,
+    descKey: "overviewFields.bottomDescription" as const,
   }
 };
 
-export type ValuesMode = keyof typeof MODE_CONFIG; // "top" | "bottom"
-const MODE_KEYS = Object.keys(MODE_CONFIG) as ValuesMode[]; // ["top","bottom"]
+export type ValuesMode = keyof typeof MODE_KEYS; // "top" | "bottom"
+const MODE_OPTIONS = Object.keys(MODE_KEYS) as ValuesMode[]; // ["top","bottom"]
 
 type Props = {
   scope: "field" | "stream";
 }
 
 const TopFieldValues: FC<Props> = ({ scope }) => {
+  const { t } = useI18n();
   const { period } = useTimeState();
   const { logs, isLoading, error, fetchLogs, abortController } = useFetchLogs();
   const { extraParams, addNewFilter } = useExtraFilters();
@@ -48,7 +50,7 @@ const TopFieldValues: FC<Props> = ({ scope }) => {
   const selectedValue = scope === "field" ? fieldValueFilters : streamFieldValueFilters;
   const setterFilter = scope === "field" ? toggleFieldValueFilter : toggleStreamFieldValueFilter;
 
-  const [mode, setMode] = useState(MODE_KEYS[0]);
+  const [mode, setMode] = useState(MODE_OPTIONS[0]);
   const [limit, setLimit] = useState(10);
 
   const rows: LogsFiledValues[] = useMemo(() => {
@@ -63,7 +65,7 @@ const TopFieldValues: FC<Props> = ({ scope }) => {
   }, [selectedKey, logs, totalLogs]);
 
   const isEmptyList = (!isLoading && !error && (rows.length === 0)) || !selectedKey;
-  const emptyText = selectedKey ? "No values found" : `Select ${scope === "field" ? "field" : "stream field"} name to see values`;
+  const emptyText = selectedKey ? t("overviewFields.noValuesFound") : t(scope === "field" ? "overviewFields.selectFieldName" : "overviewFields.selectStreamFieldName");
 
   const handleAddFilter = (row: LogsFiledValues, operator: ExtraFilterOperator) => {
     addNewFilter({ field: selectedKey, value: row.value, operator });
@@ -75,7 +77,7 @@ const TopFieldValues: FC<Props> = ({ scope }) => {
 
   const handleCopy = async (row: LogsFiledValues) => {
     const copyValue = `${selectedKey}:${row.value}`;
-    await copyToClipboard(copyValue, `\`${copyValue}\` has been copied`);
+    await copyToClipboard(copyValue, t("common.valueCopied", { value: `\`${copyValue}\`` }));
   };
 
   const handleClickRow = (row: LogsFiledValues, e: MouseEvent) => {
@@ -106,27 +108,27 @@ const TopFieldValues: FC<Props> = ({ scope }) => {
   const TableAction = (row: LogsFiledValues) => {
     const menu = [
       [{
-        label: selectedValue.includes(row.value) ? "Unfocus" : "Focus",
+        label: selectedValue.includes(row.value) ? t("overviewFields.unfocus") : t("overviewFields.focus"),
         icon: selectedValue.includes(row.value) ? <UnfocusIcon/> : <FocusIcon/>,
         shortcut: "Click",
         onClick: () => selectFieldValue(row)
       }],
       [
         {
-          label: "Include",
+          label: t("overviewFields.include"),
           icon: <FilterIcon/>,
           shortcut: `${altKeyLabel} + Click`,
           onClick: () => handleAddFilter(row, ExtraFilterOperator.Equals)
         },
         {
-          label: "Exclude",
+          label: t("overviewFields.exclude"),
           icon: <FilterOffIcon/>,
           shortcut: `${ctrlKeyLabel} + Click`,
           onClick: () => handleAddFilter(row, ExtraFilterOperator.NotEquals)
         }
       ],
       [{
-        label: "Copy",
+        label: t("common.copy"),
         icon: <CopyIcon/>,
         onClick: () => handleCopy(row)
       }],
@@ -137,23 +139,23 @@ const TopFieldValues: FC<Props> = ({ scope }) => {
   const TopFieldValuesHeaderControls = (
     <>
       <SelectLimit<ValuesMode>
-        label="Mode"
+        label={t("overviewFields.mode")}
         limit={mode}
-        options={MODE_KEYS}
+        options={MODE_OPTIONS}
         onChange={(val) => setMode(val as ValuesMode)}
         renderOptionLabel={(v, isLabel) => (
           isLabel
-            ? <span className="vm-top-fields-option__label">{v}</span>
+            ? <span className="vm-top-fields-option__label">{t(MODE_KEYS[v].titleKey)}</span>
             : (
               <div className="vm-top-fields-option">
-                <span className="vm-top-fields-option__label">{v}</span>
-                <span className="vm-top-fields-option__info">{MODE_CONFIG[v].description}</span>
+                <span className="vm-top-fields-option__label">{t(MODE_KEYS[v].titleKey)}</span>
+                <span className="vm-top-fields-option__info">{t(MODE_KEYS[v].descKey)}</span>
               </div>
             )
         )}
       />
       <SelectLimit
-        label={MODE_CONFIG[mode].title}
+        label={t(MODE_KEYS[mode].titleKey)}
         limit={limit}
         onChange={setLimit}
       />
@@ -163,9 +165,9 @@ const TopFieldValues: FC<Props> = ({ scope }) => {
   return (
     <OverviewTable
       enableSearch
-      title={<>Field values: <b>`{selectedKey}`</b></>}
+      title={<>{t("overviewFields.fieldValues")} <b>`{selectedKey}`</b></>}
       rows={rows}
-      columns={scope === "field" ? fieldValuesCol : streamFieldValuesCol}
+      columns={scope === "field" ? getFieldValuesCol(t) : getStreamFieldValuesCol(t)}
       isLoading={isLoading}
       error={error}
       isEmptyList={isEmptyList}

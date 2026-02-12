@@ -1,27 +1,28 @@
 import { Column } from "../../../../components/Table/Table";
 import { LogsFiledValues } from "../../../../api/types";
 import { getFieldCol, getHitsCol, getPercentCol } from "./utils";
+import { I18nContextType } from "../../../../i18n/I18nContext";
 
-export const fieldNamesCol: Column<LogsFiledValues>[] = [
-  getFieldCol("Field name"),
-  getHitsCol(),
-  getPercentCol("Coverage %"),
+export const getFieldNamesCol = (t: I18nContextType["t"]): Column<LogsFiledValues>[] => [
+  getFieldCol(t("columns.fieldName")),
+  getHitsCol(t),
+  getPercentCol(t("columns.coverage")),
 ];
 
-export const fieldValuesCol: Column<LogsFiledValues>[] = [
-  getFieldCol("Field value"),
-  getHitsCol(),
-  getPercentCol("% of logs"),
+export const getFieldValuesCol = (t: I18nContextType["t"]): Column<LogsFiledValues>[] => [
+  getFieldCol(t("columns.fieldValue")),
+  getHitsCol(t),
+  getPercentCol(t("columns.percentOfLogs")),
 ];
 
-export const streamFieldNamesCol: Column<LogsFiledValues>[] = [
-  getFieldCol("Stream field name"),
-  getHitsCol(),
-  getPercentCol("Coverage %"),
+export const getStreamFieldNamesCol = (t: I18nContextType["t"]): Column<LogsFiledValues>[] => [
+  getFieldCol(t("columns.streamFieldName")),
+  getHitsCol(t),
+  getPercentCol(t("columns.coverage")),
 ];
 
-export const streamFieldValuesCol: Column<LogsFiledValues>[] = [
-  getFieldCol("Stream field value"),
-  getHitsCol(),
-  getPercentCol("% of logs"),
+export const getStreamFieldValuesCol = (t: I18nContextType["t"]): Column<LogsFiledValues>[] => [
+  getFieldCol(t("columns.streamFieldValue")),
+  getHitsCol(t),
+  getPercentCol(t("columns.percentOfLogs")),
 ];

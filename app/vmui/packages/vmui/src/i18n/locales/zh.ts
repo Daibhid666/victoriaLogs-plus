@@ -123,6 +123,243 @@ const zh: Record<TranslationKeys, string> = {
   "limit.mustBePositive": "数字必须大于 0",
   "limit.maxLimit": "最大限制为 {max}",
 
+  // Chart Options
+  "chart.topHits": "热门命中",
+  "chart.bars": "柱数",
+  "chart.groupBy": "分组依据",
+  "chart.noFieldsFound": "未找到字段",
+  "chart.cumulative": "累积",
+  "chart.statsView": "统计视图",
+  "chart.stacked": "堆叠",
+  "chart.showChart": "显示图表并恢复命中更新",
+  "chart.hideChart": "隐藏图表并暂停命中更新",
+  "chart.hitsOptions": "命中选项",
+
+  // Chart Stats
+  "chart.total": "总计：",
+  "chart.hits": "条",
+  "chart.duration": "耗时：",
+
+  // Chart Messages
+  "chart.hidden": "图表已隐藏，命中更新已暂停。",
+  "chart.noLogsVolume": "无日志量数据\n当前查询和时间范围内无可用的日志量信息。",
+  "chart.noTimestamp": "当前查询和时间范围内无可用的时间戳信息。",
+  "chart.noValue": "当前查询和时间范围内无可用的值信息。",
+
+  // Query Editor Tooltips
+  "editor.newLine": "插入新行",
+  "editor.executeQuery": "执行查询",
+  "editor.toggleComment": "切换行注释",
+  "editor.quickTip": "快捷提示：",
+
+  // Select / Pagination
+  "select.rows": "行",
+  "select.rowsPerPage": "每页行数",
+  "select.loading": "加载中...",
+  "select.noOptions": "无可用选项",
+  "select.search": "搜索",
+  "select.all": "全部",
+
+  // Additional Settings
+  "additionalSettings.autocomplete": "自动补全",
+  "additionalSettings.querySettings": "查询设置",
+
+  // Common actions
+  "common.copied": "已复制",
+  "common.copy": "复制",
+  "common.copyToClipboard": "复制到剪贴板",
+  "common.loading": "加载中...",
+  "common.search": "搜索",
+
+  // Field Selector
+  "fieldSelector.showSelector": "显示字段选择器",
+  "fieldSelector.hideSelector": "隐藏字段选择器",
+  "fieldSelector.fields": "字段",
+  "fieldSelector.filterFields": "筛选字段",
+  "fieldSelector.unpinField": "取消置顶",
+  "fieldSelector.pinToTop": "置顶",
+  "fieldSelector.noValues": "无值",
+  "fieldSelector.noMatchingFields": "无匹配字段",
+  "fieldSelector.noFieldsAvailable": "无可用字段",
+  "fieldSelector.clickToApply": "点击应用：{field}:=\"{value}\"",
+  "fieldSelector.addFilter": "添加过滤：{field}:=\"{value}\"",
+
+  // Limit Confirm Modal
+  "limitConfirm.title": "确认大量加载",
+  "limitConfirm.aboutToLoad": "您即将加载 <b>{limit}</b> 条日志。",
+  "limitConfirm.unlimitedLoad": "您即将加载<b>无限数量的</b>日志。",
+  "limitConfirm.maySlowDown": "这可能会导致应用变慢或界面无响应。",
+  "limitConfirm.areYouSure": "确定要继续吗？",
+  "limitConfirm.downloadHint": "点击此处下载所有匹配的日志（无数量限制）。",
+  "limitConfirm.dontShowAgain": "此标签页不再显示",
+  "limitConfirm.loadLogs": "加载日志",
+
+  // Filters Bar
+  "filters.globalFilters": "全局过滤：",
+  "filters.clearGlobalFilters": "清除全局过滤",
+  "filters.previewFilters": "预览过滤：",
+  "filters.focusTooltip": "聚焦：仅预览日志，不改变全局过滤。",
+  "filters.streamFocusTooltip": "流聚焦：仅预览日志，不改变全局过滤。",
+  "filters.includeAll": "全部包含",
+  "filters.excludeAll": "全部排除",
+  "filters.clearFilters": "清除过滤",
+  "filters.previewInfo": "这些过滤仅影响预览日志。要将它们应用到总计、命中和字段/流，请使用<b>全部包含</b>或<b>全部排除</b>。",
+
+  // Overview Logs
+  "overview.query": "查询：",
+  "overview.limit": "限制",
+  "overview.copyQuery": "复制查询",
+  "overview.openQuery": "打开查询",
+
+  // Stream Context
+  "context.errorMissing": "错误：缺少流 ID 或时间。",
+  "context.logContext": "日志上下文",
+  "context.showContext": "显示上下文",
+  "context.openInNewPage": "在新页面打开",
+  "context.wrapLines": "自动换行",
+  "context.logsPerLoad": "每次加载日志数",
+  "context.loadNewerLogs": "加载更新的日志",
+  "context.loadOlderLogs": "加载更旧的日志",
+  "context.noMoreLogsAfter": "没有更新的日志",
+  "context.noMoreLogsBefore": "没有更旧的日志",
+
+  // Group Logs
+  "groupLogs.showField": "显示此字段以替代消息",
+  "groupLogs.hideField": "隐藏此字段",
+  "groupLogs.groupByField": "按此字段分组",
+  "groupLogs.ungroupField": "取消此字段分组",
+  "groupLogs.timestampMissing": "缺少时间戳",
+
+  // Table
+  "table.copyRow": "复制行",
+
+  // Code Example
+  "codeExample.copy": "复制",
+  "codeExample.copied": "已复制",
+
+  // JSON View
+  "jsonView.copyJson": "复制 JSON",
+  "jsonView.copiedJson": "已复制 JSON 到剪贴板",
+
+  // Overview Table
+  "overviewTable.search": "搜索",
+  "overviewTable.searchTooltip": "仅过滤当前表格中的行，不会向服务器发送查询。",
+
+  // Overview Fields
+  "overviewFields.focus": "聚焦",
+  "overviewFields.unfocus": "取消聚焦",
+  "overviewFields.include": "包含",
+  "overviewFields.exclude": "排除",
+  "overviewFields.fieldNames": "字段名称",
+  "overviewFields.streamFieldNames": "流字段名称",
+  "overviewFields.fieldValues": "字段值：",
+  "overviewFields.noFieldNamesFound": "未找到字段名称",
+  "overviewFields.noValuesFound": "未找到值",
+  "overviewFields.selectFieldName": "选择字段名称以查看值",
+  "overviewFields.selectStreamFieldName": "选择流字段名称以查看值",
+  "overviewFields.mode": "模式",
+  "overviewFields.topN": "Top N",
+  "overviewFields.bottomN": "Bottom N",
+  "overviewFields.topDescription": "最常见的值（命中数最高）",
+  "overviewFields.bottomDescription": "最不常见的值（命中数最低）",
+
+  // Overview Columns
+  "columns.fieldName": "字段名",
+  "columns.fieldValue": "字段值",
+  "columns.streamFieldName": "流字段名",
+  "columns.streamFieldValue": "流字段值",
+  "columns.hits": "命中数",
+  "columns.coverage": "覆盖率 %",
+  "columns.percentOfLogs": "日志占比 %",
+
+  // Legend Menu
+  "legend.copyName": "复制 {field} 名称",
+  "legend.addToFilter": "添加 {field} 到过滤",
+  "legend.excludeFromFilter": "从过滤排除 {field}",
+  "legend.copyField": "复制",
+  "legend.addFieldToFilter": "添加到过滤",
+  "legend.excludeFieldFromFilter": "从过滤排除",
+
+  // Download Logs
+  "download.title": "下载日志",
+  "download.fileName": "文件名",
+  "download.description": "这将下载 {period} 内使用当前查询为租户 {tenant} 的所有日志。",
+  "download.download": "下载",
+
+  // Totals
+  "totals.totalLogs": "日志总数",
+  "totals.totalLogsDesc": "所选时间范围内的日志总数",
+  "totals.logsPerSec": "日志/秒（平均）",
+  "totals.logsPerSecDesc": "所选时间范围内每秒平均日志数",
+  "totals.uniqueStreams": "唯一日志流",
+  "totals.uniqueStreamsDesc": "所选时间范围内的日志流数量",
+  "totals.prevTimeRange": "与前一时间范围相比的变化：",
+
+  // Help
+  "help.howItWorks": "工作原理",
+  "help.modalTitle": "字段与流概览",
+  "help.intro": "此视图帮助您发现<strong>高频</strong>和<strong>低频</strong>字段/流及其<strong>值</strong>，并快速过滤。",
+  "help.namesTableTitle": "名称表",
+  "help.namesTableDesc": "显示字段或流的<strong>名称</strong>以及每个名称的日志数量。",
+  "help.docs": "文档：",
+  "help.docFieldNames": "查询字段名称",
+  "help.docStreamNames": "查询流字段名称",
+  "help.columns": "列",
+  "help.hitsCol": "<strong>命中数</strong> — 包含此名称的日志数量（API 结果）。",
+  "help.coverageCol": "<strong>覆盖率 %</strong> — 占所有日志的百分比：<code>命中数 / 总数 × 100</code>。",
+  "help.clickBehavior": "点击行为",
+  "help.clickRowFocus": "点击行 → 选中名称并聚焦（添加蓝色过滤标记）。",
+  "help.ctrlClickExclude": "<strong>{ctrlKey} + 点击</strong> → 立即应用<strong>排除</strong>。",
+  "help.seeRowActions": "查看<strong>行操作</strong>了解更多选项。",
+  "help.valuesTableTitle": "值表",
+  "help.valuesTableDesc": "显示所选名称的 <strong>Top/Bottom N</strong> <strong>值</strong>以及每个值的日志数量。",
+  "help.selectors": "选择器",
+  "help.modeSelector": "<strong>模式</strong> — <code>Top</code> 或 <code>Bottom</code>。",
+  "help.topNSelector": "<strong>Top N</strong> — 获取多少个值。这些控件直接改变查询和结果。",
+  "help.valuesHitsCol": "<strong>命中数</strong> — 特定值的计数。",
+  "help.valuesPercentCol": "<strong>日志占比 %</strong> — 占所有日志的百分比：<code>命中数 / 总数 × 100</code>。",
+  "help.valuesClickRowFocus": "点击行 → 聚焦该值（添加蓝色过滤标记）。",
+  "help.valuesSeeRowActions": "查看<strong>行操作</strong>。",
+  "help.rowActionsTitle": "行操作",
+  "help.focusAction": "<strong>聚焦</strong> — 添加<strong>蓝色过滤标记</strong>并更新<strong>预览日志</strong>。<strong>不会</strong>改变全局过滤。",
+  "help.includeAction": "<strong>包含</strong> — 为所选项添加<strong>全局包含过滤</strong>（灰色标记）。",
+  "help.excludeAction": "<strong>排除</strong> — 为所选项添加<strong>全局排除过滤</strong>（灰色标记）。",
+  "help.copyAction": "<strong>复制</strong> — 复制所选<strong>名称</strong>（来自<em>名称表</em>）或<strong>名称–值</strong>对（来自<em>值表</em>）。",
+  "help.note": "<strong>注意：</strong><strong>包含/排除</strong>会作为<strong>灰色标记</strong>显示在<strong>全局过滤</strong>中，并影响<strong>此页面上的所有查询</strong>，直到移除。",
+  "help.footnote": "* 搜索和排序在<strong>名称表</strong>和<strong>值表</strong>中均为本地（客户端）操作。",
+
+  // Shortcut Keys
+  "shortcuts.title": "快捷键",
+  "shortcuts.query": "查询",
+  "shortcuts.run": "运行",
+  "shortcuts.multiLine": "多行查询",
+  "shortcuts.prevCommand": "查询历史中的上一条命令",
+  "shortcuts.nextCommand": "查询历史中的下一条命令",
+  "shortcuts.quickAutocomplete": "显示快速自动补全提示",
+  "shortcuts.graph": "图表",
+  "shortcuts.zoomIn": "放大",
+  "shortcuts.zoomOut": "缩小",
+  "shortcuts.moveGraph": "左右移动图表",
+  "shortcuts.openLegendMenu": "打开图例项菜单",
+  "shortcuts.toggleSeries": "隐藏或显示此系列",
+  "shortcuts.focusSeries": "仅显示此系列或显示所有系列",
+
+  // Group Logs Stats
+  "groupLogs.totalLogsReturned": "返回日志总数：",
+  "groupLogs.totalGroups": "分组总数：",
+  "groupLogs.collapseAll": "全部折叠",
+  "groupLogs.expandAll": "全部展开",
+
+  // Legend Visibility
+  "legend.hideSeries": "隐藏此系列",
+  "legend.showSeries": "显示此系列",
+  "legend.showAllSeries": "显示所有系列",
+  "legend.showOnlySeries": "仅显示此系列",
+
+  // Copy toast
+  "common.valueCopied": "{value} 已复制",
+  "common.queryCopied": "查询已复制",
+
   // Language
   "lang.switch": "语言",
   "lang.en": "English",

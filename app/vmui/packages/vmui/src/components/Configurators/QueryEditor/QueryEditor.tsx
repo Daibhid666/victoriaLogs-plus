@@ -11,6 +11,7 @@ import { toggleLineComment } from "./LogsQL/utils";
 import { ctrlKeyLabel } from "../../../utils/keyboard";
 import Tooltip from "../../Main/Tooltip/Tooltip";
 import { QuestionIcon } from "../../Main/Icons";
+import useI18n from "../../../i18n/useI18n";
 
 export interface QueryEditorAutocompleteProps {
   value: string;
@@ -55,6 +56,7 @@ const QueryEditor: FC<QueryEditorProps> = ({
 }) => {
   const { autocompleteQuick } = useQueryState();
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
 
   const [openAutocomplete, setOpenAutocomplete] = useState(false);
   const [caretPositionAutocomplete, setCaretPositionAutocomplete] = useState<[number, number]>([0, 0]);
@@ -163,13 +165,13 @@ const QueryEditor: FC<QueryEditorProps> = ({
             title={
               <div className="vm-query-editor-help-tooltip">
                 <p className="vm-query-editor-help-tooltip-item">
-                  <span>Shift + Enter</span> <span>insert a new line</span>
+                  <span>Shift + Enter</span> <span>{t("editor.newLine")}</span>
                 </p>
                 <p className="vm-query-editor-help-tooltip-item">
-                  <span>Ctrl + Enter</span> <span>execute query</span>
+                  <span>Ctrl + Enter</span> <span>{t("editor.executeQuery")}</span>
                 </p>
                 <p className="vm-query-editor-help-tooltip-item">
-                  <span>{ctrlKeyLabel} + /</span> <span>toggle line comment</span>
+                  <span>{ctrlKeyLabel} + /</span> <span>{t("editor.toggleComment")}</span>
                 </p>
               </div>
             }

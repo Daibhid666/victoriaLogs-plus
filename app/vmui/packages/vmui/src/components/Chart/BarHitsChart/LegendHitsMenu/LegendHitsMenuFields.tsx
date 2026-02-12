@@ -6,6 +6,7 @@ import { LegendLogHitsMenu } from "../../../../api/types";
 import useCopyToClipboard from "../../../../hooks/useCopyToClipboard";
 import { ExtraFilter, ExtraFilterOperator } from "../../../../pages/OverviewPage/FiltersBar/types";
 import { useHitsChartConfig } from "../../../../pages/QueryPage/HitsChart/hooks/useHitsChartConfig";
+import useI18n from "../../../../i18n/useI18n";
 
 interface Props {
   fields: string[];
@@ -30,13 +31,14 @@ const stringToFilter = (string: string) => {
 };
 
 const LegendHitsMenuFields: FC<Props> = ({ fields, onApplyFilter, onClose }) => {
+  const { t } = useI18n();
   const copyToClipboard = useCopyToClipboard();
   const {
     groupFieldHits: { value: groupFieldHits },
   } = useHitsChartConfig();
 
   const handleCopy = (field: string) => async () => {
-    await copyToClipboard(field, `${field} has been copied`);
+    await copyToClipboard(field, t("common.valueCopied", { value: field }));
     onClose();
   };
 
@@ -48,17 +50,17 @@ const LegendHitsMenuFields: FC<Props> = ({ fields, onApplyFilter, onClose }) => 
   const generateFieldMenu = (field: string): LegendLogHitsMenu[] => {
     return [
       {
-        title: "Copy",
+        title: t("legend.copyField"),
         iconStart: <CopyIcon/>,
         handler: handleCopy(field),
       },
       {
-        title: "Add to filter",
+        title: t("legend.addFieldToFilter"),
         iconStart: <FilterIcon/>,
         handler: handleAddToFilter(field, ExtraFilterOperator.Equals),
       },
       {
-        title: "Exclude to filter",
+        title: t("legend.excludeFieldFromFilter"),
         iconStart: <FilterOffIcon/>,
         handler: handleAddToFilter(field, ExtraFilterOperator.NotEquals),
       }

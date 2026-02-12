@@ -1,0 +1,197 @@
+@use "src/styles/variables" as *;
+
+.vm-field-selector {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+
+  &-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: $color-text-secondary;
+    padding: 10px 6px;
+    border-radius: $border-radius-small;
+    transition: color 0.15s, background-color 0.15s;
+    flex-shrink: 0;
+
+    &:hover {
+      color: $color-primary;
+      background-color: $color-hover-black;
+    }
+
+    &_active {
+      color: $color-primary;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 99;
+    width: 320px;
+    max-height: 500px;
+    overflow-y: auto;
+    background: $color-background-block;
+    border: $border-divider;
+    border-radius: $border-radius-medium;
+    box-shadow: $box-shadow;
+    padding: $padding-small;
+    display: grid;
+    gap: $padding-small;
+  }
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $padding-small;
+
+    &__title {
+      font-size: $font-size;
+      font-weight: 600;
+    }
+
+    &__count {
+      font-size: $font-size-small;
+      color: $color-text-secondary;
+    }
+  }
+
+  &-saved {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  &-list {
+    display: grid;
+    gap: 1px;
+    max-height: 350px;
+    overflow-y: auto;
+  }
+
+  &-field {
+    &-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      border-radius: $border-radius-small;
+      cursor: pointer;
+      font-size: $font-size-small;
+      transition: background-color 0.15s;
+
+      &:hover {
+        background-color: $color-hover-black;
+      }
+
+      &_expanded {
+        background-color: $color-hover-black;
+      }
+
+      &__pin {
+        display: flex;
+        width: 16px;
+        height: 16px;
+        color: $color-text-secondary;
+        cursor: pointer;
+        flex-shrink: 0;
+
+        &:hover,
+        &_active {
+          color: $color-primary;
+        }
+      }
+
+      &__name {
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: $font-family-monospace;
+      }
+
+      &__hits {
+        flex-shrink: 0;
+        color: $color-text-secondary;
+        font-size: 11px;
+      }
+
+      &__arrow {
+        display: flex;
+        width: 16px;
+        height: 16px;
+        color: $color-text-secondary;
+        flex-shrink: 0;
+        transition: transform 0.15s;
+
+        &_open {
+          transform: rotate(180deg);
+        }
+      }
+    }
+
+    &-values {
+      padding: 4px 8px 8px 26px;
+      display: grid;
+      gap: 2px;
+
+      &__loading {
+        font-size: $font-size-small;
+        color: $color-text-secondary;
+        padding: 4px 0;
+      }
+    }
+
+    &-value {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 6px;
+      border-radius: $border-radius-small;
+      font-size: $font-size-small;
+      cursor: pointer;
+      transition: background-color 0.15s;
+
+      &:hover {
+        background-color: $color-hover-black;
+      }
+
+      &__text {
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: $font-family-monospace;
+      }
+
+      &__hits {
+        flex-shrink: 0;
+        color: $color-text-secondary;
+        font-size: 11px;
+      }
+
+      &__add {
+        display: flex;
+        width: 16px;
+        height: 16px;
+        color: $color-primary;
+        flex-shrink: 0;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+
+      &:hover &__add {
+        opacity: 1;
+      }
+    }
+  }
+}

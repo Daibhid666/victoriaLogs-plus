@@ -3,9 +3,11 @@ import { DeleteIcon } from "../../../components/Main/Icons";
 import { useExtraFilters } from "../hooks/useExtraFilters";
 import FiltersBarItem from "./FiltersBarItem/FiltersBarItem";
 import Button from "../../../components/Main/Button/Button";
+import useI18n from "../../../i18n/useI18n";
 import "./style.scss";
 
 const FiltersBar: FC = () => {
+  const { t } = useI18n();
   const { extraFilters, removeFilter, clearFilters } = useExtraFilters();
 
   if (!extraFilters.length) return null;
@@ -13,7 +15,7 @@ const FiltersBar: FC = () => {
   return (
     <div className="vm-filters-bar vm-block">
       <div className="vm-filters-bar-title">
-        <h2 className="vm-title">Global filters:</h2>
+        <h2 className="vm-title">{t("filters.globalFilters")}</h2>
       </div>
 
       {extraFilters.map((filter, index) => (
@@ -33,7 +35,7 @@ const FiltersBar: FC = () => {
             onClick={clearFilters}
             startIcon={<DeleteIcon/>}
           >
-            Clear global filters
+            {t("filters.clearGlobalFilters")}
           </Button>
         </div>
       )}

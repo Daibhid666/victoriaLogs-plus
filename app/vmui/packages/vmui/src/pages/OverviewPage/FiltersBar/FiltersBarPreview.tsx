@@ -7,8 +7,10 @@ import FiltersBarItem from "./FiltersBarItem/FiltersBarItem";
 import Button from "../../../components/Main/Button/Button";
 import { useSearchParams } from "react-router-dom";
 import { useExtraFilters } from "../hooks/useExtraFilters";
+import useI18n from "../../../i18n/useI18n";
 
 const FiltersBarPreview: FC = () => {
+  const { t } = useI18n();
   const [, setSearchParams] = useSearchParams();
   const { extraFilters, upsertFilters } = useExtraFilters();
   const { fieldFilter, fieldValueFilters, setFieldFilter, toggleFieldValueFilter } = useFieldFilter();
@@ -56,12 +58,12 @@ const FiltersBarPreview: FC = () => {
   return (
     <div className="vm-filters-bar vm-filters-bar_preview">
       <div className="vm-filters-bar-title">
-        <h2 className="vm-title">Preview filters:</h2>
+        <h2 className="vm-title">{t("filters.previewFilters")}</h2>
       </div>
 
       {fieldFilter && fieldValues.map(v => (
         <Tooltip
-          title={"Focus: preview logs only. Doesn’t change Global filters."}
+          title={t("filters.focusTooltip")}
           key={v}
         >
           <FiltersBarItem
@@ -75,7 +77,7 @@ const FiltersBarPreview: FC = () => {
 
       {streamFieldFilter && streamValues.map(v => (
         <Tooltip
-          title={"Stream focus: preview logs only. Doesn’t change Global filters."}
+          title={t("filters.streamFocusTooltip")}
           key={v}
         >
           <FiltersBarItem
@@ -94,7 +96,7 @@ const FiltersBarPreview: FC = () => {
           onClick={handleApplyFilters(true)}
           startIcon={<FilterIcon/>}
         >
-          Include all
+          {t("filters.includeAll")}
         </Button>
         <Button
           variant="outlined"
@@ -102,7 +104,7 @@ const FiltersBarPreview: FC = () => {
           onClick={handleApplyFilters(false)}
           startIcon={<FilterOffIcon/>}
         >
-          Exclude all
+          {t("filters.excludeAll")}
         </Button>
         <Button
           variant="outlined"
@@ -110,14 +112,14 @@ const FiltersBarPreview: FC = () => {
           onClick={handleClear}
           startIcon={<DeleteIcon/>}
         >
-          Clear filters
+          {t("filters.clearFilters")}
         </Button>
       </div>
 
-      <div className="vm-filters-bar__info">
-        These filters affect preview logs only.
-        To apply them to Totals, Hits, and Fields/Streams, use <b>Include All</b> or <b>Exclude All</b>.
-      </div>
+      <div
+        className="vm-filters-bar__info"
+        dangerouslySetInnerHTML={{ __html: t("filters.previewInfo") }}
+      />
     </div>
   );
 };

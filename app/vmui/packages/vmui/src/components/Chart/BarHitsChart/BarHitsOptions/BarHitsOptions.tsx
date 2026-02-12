@@ -19,6 +19,7 @@ import { useHitsChartConfig } from "../../../../pages/QueryPage/HitsChart/hooks/
 import { useExtraFilters } from "../../../../pages/OverviewPage/hooks/useExtraFilters";
 import { useTimeState } from "../../../../state/time/TimeStateContext";
 import { useFetchFieldNames } from "../../../../pages/OverviewPage/hooks/useFetchFieldNames";
+import useI18n from "../../../../i18n/useI18n";
 
 interface Props {
   query?: string;
@@ -29,6 +30,7 @@ interface Props {
 
 const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
   const {
     value: openList,
     toggle: handleToggleList,
@@ -106,7 +108,7 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
       <div className="vm-bar-hits-options vm-bar-hits-options_selections">
         <div className="vm-bar-hits-options-item">
           <SelectLimit
-            label="Top hits"
+            label={t("chart.topHits")}
             options={[5, 10, 25, 50]}
             limit={topHits.value}
             onChange={topHits.set}
@@ -114,7 +116,7 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
         </div>
         <div className="vm-bar-hits-options-item">
           <SelectLimit
-            label="Bars"
+            label={t("chart.bars")}
             options={LOGS_BAR_COUNTS}
             limit={barsCount.value}
             onChange={barsCount.set}
@@ -125,10 +127,10 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
             <div className="vm-bar-hits-options-item">
               <SelectLimit
                 searchable
-                label="Group by"
+                label={t("chart.groupBy")}
                 limit={groupFieldHits.value}
                 options={fieldNamesOptions}
-                textNoOptions={"No fields found"}
+                textNoOptions={t("chart.noFieldsFound")}
                 isLoading={loading}
                 error={error ? String(error) : ""}
                 onOpenSelect={handleOpenFields}
@@ -141,7 +143,7 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
 
       <div className="vm-bar-hits-options-item">
         <Switch
-          label={"Cumulative"}
+          label={t("chart.cumulative")}
           value={cumulative}
           onChange={handleChangeCumulative}
         />
@@ -149,7 +151,7 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
       {!isOverview && (
         <div className="vm-bar-hits-options-item">
           <Switch
-            label="Stats view"
+            label={t("chart.statsView")}
             value={isStatsMode}
             onChange={handleChangeMode}
           />
@@ -157,7 +159,7 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
       )}
       <div className="vm-bar-hits-options-item">
         <Switch
-          label={"Stacked"}
+          label={t("chart.stacked")}
           value={stacked}
           onChange={handleChangeStacked}
         />
@@ -184,7 +186,7 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
           </ShortcutKeys>
         </>
       )}
-      <Tooltip title={hideChart ? "Show chart and resume hits updates" : "Hide chart and pause hits updates"}>
+      <Tooltip title={hideChart ? t("chart.showChart") : t("chart.hideChart")}>
         <Button
           variant="text"
           color="primary"
@@ -204,7 +206,7 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
             ariaLabel="settings"
           />
           <Modal
-            title={"Hits Options"}
+            title={t("chart.hitsOptions")}
             onClose={handleCloseList}
             isOpen={openList}
             className={classNames({

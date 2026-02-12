@@ -6,6 +6,7 @@ import Tooltip from "../Main/Tooltip/Tooltip";
 import Button from "../Main/Button/Button";
 import { useEffect } from "preact/compat";
 import useCopyToClipboard from "../../hooks/useCopyToClipboard";
+import useI18n from "../../i18n/useI18n";
 
 type OrderDir = "asc" | "desc"
 
@@ -45,6 +46,7 @@ const Table = <T extends object>({
   paginationOffset
 }: TableProps<T>) => {
   const handleCopyToClipboard = useCopyToClipboard();
+  const { t } = useI18n();
 
   const [orderBy, setOrderBy] = useState<keyof T>(defaultOrderBy);
   const [orderDir, setOrderDir] = useState<OrderDir>(defaultOrderDir || "desc");
@@ -141,7 +143,7 @@ const Table = <T extends object>({
               <td className="vm-table-cell vm-table-cell_right">
                 {row[copyToClipboard] && (
                   <div className="vm-table-cell__content">
-                    <Tooltip title={copied === rowIndex ? "Copied" : "Copy row"}>
+                    <Tooltip title={copied === rowIndex ? t("common.copied") : t("table.copyRow")}>
                       <Button
                         variant="text"
                         color={copied === rowIndex ? "success" : "gray"}

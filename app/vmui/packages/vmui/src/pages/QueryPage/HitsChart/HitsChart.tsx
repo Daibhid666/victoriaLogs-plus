@@ -13,6 +13,7 @@ import LineLoader from "../../../components/Main/LineLoader/LineLoader";
 import { useSearchParams } from "react-router-dom";
 import { ExtraFilter } from "../../OverviewPage/FiltersBar/types";
 import { toEpochSeconds } from "../../../utils/time";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props {
   query: string;
@@ -27,6 +28,7 @@ interface Props {
 
 const HitsChart: FC<Props> = ({ query, logHits, durationMs, period, error, isLoading, isOverview, onApplyFilter }) => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
   const timeDispatch = useTimeDispatch();
   const [searchParams] = useSearchParams();
   const hideChart = useMemo(() => searchParams.get("hide_chart"), [searchParams]);
@@ -63,13 +65,13 @@ const HitsChart: FC<Props> = ({ query, logHits, durationMs, period, error, isLoa
     const noTimestamps = data[0].length === 0;
     const noValues = data[1].length === 0;
     if (hideChart) {
-      return "Chart hidden. Hits updates paused.";
+      return t("chart.hidden");
     } else if (noData) {
-      return "No logs volume available\nNo volume information available for the current queries and time range.";
+      return t("chart.noLogsVolume");
     } else if (noTimestamps) {
-      return "No timestamp information available for the current queries and time range.";
+      return t("chart.noTimestamp");
     } else if (noValues) {
-      return "No value information available for the current queries and time range.";
+      return t("chart.noValue");
     } return "";
   }, [data, hideChart, isLoading]);
 

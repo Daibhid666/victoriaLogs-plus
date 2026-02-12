@@ -19,6 +19,7 @@ import StreamContextButton from "../../../pages/StreamContext/StreamContextButto
 import { useAppState } from "../../../state/common/StateContext";
 import { formatDateWithNanoseconds } from "../../../utils/time";
 import useDeviceDetect from "../../../hooks/useDeviceDetect";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props {
   log: Logs;
@@ -32,6 +33,7 @@ interface Props {
 const GroupLogsItem: FC<Props> = ({ log, displayFields = [], isContextView, hideGroupButton, className, onItemClick }) => {
   const { isDarkTheme } = useAppState();
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
 
   const {
     value: isOpenFields,
@@ -144,7 +146,7 @@ const GroupLogsItem: FC<Props> = ({ log, displayFields = [], isContextView, hide
             "vm-group-logs-row-content__time_missing": !formattedTime
           })}
         >
-          {formattedTime || "timestamp missing"}
+          {formattedTime || t("groupLogs.timestampMissing")}
         </div>
         <div
           className={classNames({
@@ -176,7 +178,7 @@ const GroupLogsItem: FC<Props> = ({ log, displayFields = [], isContextView, hide
               displayFields={displayFields}
             />
           )}
-          <Tooltip title={copied ? "Copied" : "Copy to clipboard"}>
+          <Tooltip title={copied ? t("common.copied") : t("common.copyToClipboard")}>
             <Button
               variant="text"
               color="gray"

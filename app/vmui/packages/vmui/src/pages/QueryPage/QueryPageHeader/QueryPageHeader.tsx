@@ -15,6 +15,9 @@ import { useQuickAutocomplete } from "../../../hooks/useQuickAutocomplete";
 import { AUTOCOMPLETE_QUICK_KEY } from "../../../components/Main/ShortcutKeys/constants/keyList";
 import Tooltip from "../../../components/Main/Tooltip/Tooltip";
 import useI18n from "../../../i18n/useI18n";
+import FieldSelector from "../FieldSelector/FieldSelector";
+import { ExtraFilter } from "../../OverviewPage/FiltersBar/types";
+import { TimeParams } from "../../../types";
 
 interface Props {
   query: string;
@@ -25,6 +28,9 @@ interface Props {
   onChange: (val: string) => void;
   onChangeLimit: (val: number) => void;
   onRun: () => void;
+  period: TimeParams;
+  onApplyFilter: (filter: ExtraFilter) => void;
+  onRemoveFilter: (filter: ExtraFilter) => void;
 }
 
 const QueryPageHeader: FC<Props> = ({
@@ -36,6 +42,9 @@ const QueryPageHeader: FC<Props> = ({
   onChange,
   onChangeLimit,
   onRun,
+  period,
+  onApplyFilter,
+  onRemoveFilter,
 }) => {
   const { isMobile } = useDeviceDetect();
   const { autocomplete, queryHistory, autocompleteQuick } = useQueryState();
@@ -92,20 +101,28 @@ const QueryPageHeader: FC<Props> = ({
       })}
     >
       <div className="vm-query-page-header-top">
-        <QueryEditor
-          value={query}
-          autocomplete={autocomplete || autocompleteQuick}
-          autocompleteEl={LogsQueryEditorAutocomplete}
-          onArrowUp={createHandlerArrow(-1)}
-          onArrowDown={createHandlerArrow(1)}
-          onEnter={onRun}
-          onChange={onChangeHandle}
-          label={t("query.logQuery")}
-          error={error}
-          stats={{
-            executionTimeMsec: queryDurationMs,
-          }}
-        />
+        <div className="vm-query-page-header-query">
+          <FieldSelector
+            query={query}
+            period={period}
+            onApplyFilter={onApplyFilter}
+            onRemoveFilter={onRemoveFilter}
+          />
+          <QueryEditor
+            value={query}
+            autocomplete={autocomplete || autocompleteQuick}
+            autocompleteEl={LogsQueryEditorAutocomplete}
+            onArrowUp={createHandlerArrow(-1)}
+            onArrowDown={createHandlerArrow(1)}
+            onEnter={onRun}
+            onChange={onChangeHandle}
+            label={t("query.logQuery")}
+            error={error}
+            stats={{
+              executionTimeMsec: queryDurationMs,
+            }}
+          />
+        </div>
         <LogsLimitInput
           limit={limit}
           onChangeLimit={onChangeLimit}
@@ -114,7 +131,7 @@ const QueryPageHeader: FC<Props> = ({
       </div>
       <div className="vm-query-page-header-bottom">
         <div className="vm-query-page-header-bottom-contols">
-          <Tooltip title={<>Quick tip: {AUTOCOMPLETE_QUICK_KEY}</>}>
+          <Tooltip title={<>{t("editor.quickTip")} {AUTOCOMPLETE_QUICK_KEY}</>}>
             <Switch
               label={t("query.autocomplete")}
               value={autocomplete}

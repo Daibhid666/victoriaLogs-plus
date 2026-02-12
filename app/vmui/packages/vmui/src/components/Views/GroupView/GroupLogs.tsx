@@ -18,6 +18,7 @@ import SelectLimit from "../../Main/Pagination/SelectLimit/SelectLimit";
 import { usePaginateGroups } from "../../../pages/QueryPage/hooks/usePaginateGroups";
 import { GroupLogsType } from "../../../types";
 import useDeviceDetect from "../../../hooks/useDeviceDetect";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props {
   logs: Logs[];
@@ -25,6 +26,7 @@ interface Props {
 }
 
 const GroupLogs: FC<Props> = ({ logs, settingsRef }) => {
+  const { t } = useI18n();
   const { isMobile } = useDeviceDetect();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -142,8 +144,8 @@ const GroupLogs: FC<Props> = ({ logs, settingsRef }) => {
           <div className="vm-bar-hits-stats">
             {!isMobile && (
               <>
-                <div className="vm-bar-hits-stats__item">Total logs returned: <b>{logs.length}</b></div>
-                <div className="vm-bar-hits-stats__item">Total groups: <b>{groupData.length}</b></div>
+                <div className="vm-bar-hits-stats__item">{t("groupLogs.totalLogsReturned")} <b>{logs.length}</b></div>
+                <div className="vm-bar-hits-stats__item">{t("groupLogs.totalGroups")} <b>{groupData.length}</b></div>
               </>
             )}
             <SelectLimit
@@ -152,12 +154,12 @@ const GroupLogs: FC<Props> = ({ logs, settingsRef }) => {
               onChange={handleSetRowsPerPage}
             />
           </div>
-          <Tooltip title={expandAll ? "Collapse All" : "Expand All"}>
+          <Tooltip title={expandAll ? t("groupLogs.collapseAll") : t("groupLogs.expandAll")}>
             <Button
               variant="text"
               startIcon={expandAll ? <CollapseIcon/> : <ExpandIcon/>}
               onClick={handleToggleExpandAll}
-              ariaLabel={expandAll ? "Collapse All" : "Expand All"}
+              ariaLabel={expandAll ? t("groupLogs.collapseAll") : t("groupLogs.expandAll")}
             />
           </Tooltip>
           <GroupLogsConfigurators logs={logs}/>

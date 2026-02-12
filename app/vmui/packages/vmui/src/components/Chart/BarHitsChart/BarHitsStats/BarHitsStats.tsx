@@ -3,6 +3,7 @@ import "uplot/dist/uPlot.min.css";
 import useDeviceDetect from "../../../../hooks/useDeviceDetect";
 import { formatNumberShort } from "../../../../utils/math";
 import { getDurationFromMilliseconds } from "../../../../utils/time";
+import useI18n from "../../../../i18n/useI18n";
 import "./style.scss";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 const BarHitsStats: FC<Props> = ({ totalHits, isHitsMode, durationMs }) => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
 
   const totalHitsFormat = isMobile ? formatNumberShort(totalHits) : totalHits.toLocaleString("en-US");
   const durationFormat = durationMs ? getDurationFromMilliseconds(durationMs) : null;
@@ -21,12 +23,12 @@ const BarHitsStats: FC<Props> = ({ totalHits, isHitsMode, durationMs }) => {
     <div className="vm-bar-hits-stats">
       {isHitsMode && (
         <p className="vm-bar-hits-stats__item">
-          Total: <b>{totalHitsFormat}</b> hits
+          {t("chart.total")} <b>{totalHitsFormat}</b> {t("chart.hits")}
         </p>
       )}
       {durationFormat && (
       <p className="vm-bar-hits-stats__item">
-        Duration: <b>{durationFormat}</b>
+        {t("chart.duration")} <b>{durationFormat}</b>
       </p>
       )}
     </div>

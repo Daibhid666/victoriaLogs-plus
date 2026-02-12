@@ -18,6 +18,7 @@ import (
 	"github.com/VictoriaMetrics/VictoriaLogs/app/vlinsert"
 	"github.com/VictoriaMetrics/VictoriaLogs/app/vlinsert/insertutil"
 	"github.com/VictoriaMetrics/VictoriaLogs/app/vlselect"
+	"github.com/VictoriaMetrics/VictoriaLogs/app/vlselect/customapi"
 	"github.com/VictoriaMetrics/VictoriaLogs/app/vlstorage"
 )
 
@@ -45,6 +46,7 @@ func main() {
 
 	vlstorage.Init()
 	vlselect.Init()
+	customapi.Init()
 
 	insertutil.SetLogRowsStorage(&vlstorage.Storage{})
 	vlinsert.Init()
@@ -68,6 +70,7 @@ func main() {
 
 	vlinsert.Stop()
 	vlselect.Stop()
+	customapi.Stop()
 	vlstorage.Stop()
 
 	logger.Infof("the VictoriaLogs has been stopped in %.3f seconds", time.Since(startTime).Seconds())
@@ -88,6 +91,9 @@ func requestHandler(w http.ResponseWriter, r *http.Request) bool {
 			{"metrics", "available service metrics"},
 			{"flags", "command-line flags"},
 		})
+		return true
+	}
+	if customapi.RequestHandler(w, r) {
 		return true
 	}
 	if vlinsert.RequestHandler(w, r) {

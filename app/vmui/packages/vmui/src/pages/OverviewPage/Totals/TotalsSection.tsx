@@ -26,7 +26,7 @@ const TotalsSection: FC = () => {
       {explorerTotals.map(total => (
         <TotalCard
           {...total}
-          key={total.title}
+          key={total.alias}
           periods={periods}
           isLoading={isLoading}
           value={totals?.[total.alias]}

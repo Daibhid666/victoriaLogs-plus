@@ -14,6 +14,7 @@ import router from "../../router";
 import classNames from "classnames";
 import "./style.scss";
 import { OpenNewIcon } from "../../components/Main/Icons";
+import useI18n from "../../i18n/useI18n";
 
 interface Props {
   log: Logs;
@@ -22,6 +23,7 @@ interface Props {
 }
 
 const StreamContextList: FC<Props> = ({ log, displayFields, isModal }) => {
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const noWrapLines = searchParams.get(LOGS_URL_PARAMS.NO_WRAP_LINES) === "true";
 
@@ -79,7 +81,7 @@ const StreamContextList: FC<Props> = ({ log, displayFields, isModal }) => {
       <div className="vm-steam-context-header">
         {!isModal && (
           <div className="vm-steam-context-header-title">
-            <h1 className="vm-modal-content-header__title">Log context</h1>
+            <h1 className="vm-modal-content-header__title">{t("context.logContext")}</h1>
             <p className="vm-steam-context-header-title__info">
               <span>_stream_id: {log._stream_id}</span>
               <span>_time: {log._time}</span>
@@ -101,19 +103,19 @@ const StreamContextList: FC<Props> = ({ log, displayFields, isModal }) => {
                 variant="text"
                 size="small"
               >
-                Open in new page
+                {t("context.openInNewPage")}
               </Button>
             </Link>
           </div>
         )}
         <Switch
-          label="Wrap lines"
+          label={t("context.wrapLines")}
           value={!noWrapLines}
           onChange={toggleWrapLines}
         />
         <SelectLimit
           limit={loadSize}
-          label="Logs per load"
+          label={t("context.logsPerLoad")}
           options={[5, 10, 20, 50, 100]}
           onChange={handleChangeLoadSize}
         />
@@ -125,7 +127,7 @@ const StreamContextList: FC<Props> = ({ log, displayFields, isModal }) => {
           disabled={isLoading || !hasMore.after}
           variant={!hasMore.after ? "text" : "contained"}
         >
-          {!hasMore.after ? "no more logs after" : "Load newer logs"}
+          {!hasMore.after ? t("context.noMoreLogsAfter") : t("context.loadNewerLogs")}
         </Button>
       </div>
 
@@ -158,7 +160,7 @@ const StreamContextList: FC<Props> = ({ log, displayFields, isModal }) => {
           disabled={isLoading || !hasMore.before}
           variant={!hasMore.before ? "text" : "contained"}
         >
-          {!hasMore.before ? "no more logs before" : "Load older logs"}
+          {!hasMore.before ? t("context.noMoreLogsBefore") : t("context.loadOlderLogs")}
         </Button>
       </div>
     </div>

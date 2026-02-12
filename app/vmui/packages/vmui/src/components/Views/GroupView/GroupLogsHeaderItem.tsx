@@ -6,6 +6,7 @@ import useCopyToClipboard from "../../../hooks/useCopyToClipboard";
 import { useSearchParams } from "react-router-dom";
 import { LOGS_GROUP_BY, LOGS_URL_PARAMS } from "../../../constants/logs";
 import { convertToFieldFilter } from "../../../utils/logs";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props {
   pair: string;
@@ -14,6 +15,7 @@ interface Props {
 
 const GroupLogsHeaderItem: FC<Props> = ({ pair, isHide }) => {
   const { isDarkTheme } = useAppState();
+  const { t } = useI18n();
   const copyToClipboard = useCopyToClipboard();
   const [searchParams] = useSearchParams();
 
@@ -38,7 +40,7 @@ const GroupLogsHeaderItem: FC<Props> = ({ pair, isHide }) => {
 
   return (
     <Tooltip
-      title={copied === pair ? "Copied" : "Copy to clipboard"}
+      title={copied === pair ? t("common.copied") : t("common.copyToClipboard")}
       placement={"top-center"}
     >
       <div

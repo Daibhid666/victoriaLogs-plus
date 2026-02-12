@@ -1,108 +1,95 @@
 import { ctrlKeyLabel } from "../../../../utils/keyboard";
+import useI18n from "../../../../i18n/useI18n";
 
-const DocFieldNames = () => (
+const DocFieldNames = ({ label }: { label: string }) => (
   <a
     href="https://docs.victoriametrics.com/victorialogs/querying/#querying-field-names"
     target="_blank"
     rel="noopener noreferrer"
   >
-    Querying field names
+    {label}
   </a>
 );
 
-const DocStreamNames = () => (
+const DocStreamNames = ({ label }: { label: string }) => (
   <a
     href="https://docs.victoriametrics.com/victorialogs/querying/#querying-stream-field-names"
     target="_blank"
     rel="noopener noreferrer"
   >
-    Querying stream field names
+    {label}
   </a>
 );
 
-const OverviewFieldsHelpContent = () => (
-  <div className="vm-overview-fields-tour-content vm-markdown">
-    <p>
-      This view helps you spot <strong>noisy</strong> and <strong>rare</strong> fields/streams and their
-      <strong> values</strong>, and quickly filter the rest.
-    </p>
+const OverviewFieldsHelpContent = () => {
+  const { t } = useI18n();
 
-    <hr/>
+  return (
+    <div className="vm-overview-fields-tour-content vm-markdown">
+      <p dangerouslySetInnerHTML={{ __html: t("help.intro") }}/>
 
-    <h2>Names table</h2>
-    <p>
-      Shows field or stream <strong>names</strong> and the number of logs per name.<br/>
-      Docs: <DocFieldNames/> and <DocStreamNames/>
-    </p>
+      <hr/>
 
-    <h3>Columns</h3>
-    <ul>
-      <li><strong>Hits</strong> — number of logs that contain this name (API result).</li>
-      <li><strong>Coverage %</strong> — percentage of all logs: <code>hits / total × 100</code>.</li>
-    </ul>
+      <h2>{t("help.namesTableTitle")}</h2>
+      <p>
+        <span dangerouslySetInnerHTML={{ __html: t("help.namesTableDesc") }}/><br/>
+        {t("help.docs")} <DocFieldNames label={t("help.docFieldNames")}/> and <DocStreamNames label={t("help.docStreamNames")}/>
+      </p>
 
-    <h3>Click behavior</h3>
-    <ul>
-      <li>Click a row → selects the name and focuses it (adds a blue filter badge).</li>
-      <li><strong>{ctrlKeyLabel} + Click</strong> → applies <strong>Exclude</strong> immediately.</li>
-      <li>See <strong>Row actions</strong> for more options.</li>
-    </ul>
+      <h3>{t("help.columns")}</h3>
+      <ul>
+        <li dangerouslySetInnerHTML={{ __html: t("help.hitsCol") }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.coverageCol") }}/>
+      </ul>
 
-    <hr/>
+      <h3>{t("help.clickBehavior")}</h3>
+      <ul>
+        <li>{t("help.clickRowFocus")}</li>
+        <li dangerouslySetInnerHTML={{ __html: t("help.ctrlClickExclude").replace("{ctrlKey}", ctrlKeyLabel) }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.seeRowActions") }}/>
+      </ul>
 
-    <h2>Values table</h2>
-    <p>
-      Shows <strong>Top/Bottom N</strong> <strong>values</strong> for the selected name and the number of logs per value.
-    </p>
+      <hr/>
 
-    <h3>Selectors</h3>
-    <ul>
-      <li><strong>Mode</strong> — <code>Top</code> or <code>Bottom</code>.</li>
-      <li><strong>Top N</strong> — how many values to fetch. These controls directly change the query and results.</li>
-    </ul>
+      <h2>{t("help.valuesTableTitle")}</h2>
+      <p dangerouslySetInnerHTML={{ __html: t("help.valuesTableDesc") }}/>
 
-    <h3>Columns</h3>
-    <ul>
-      <li><strong>Hits</strong> — count for the specific value.</li>
-      <li><strong>% of logs</strong> — percentage of all logs: <code>hits / total × 100</code>.</li>
-    </ul>
+      <h3>{t("help.selectors")}</h3>
+      <ul>
+        <li dangerouslySetInnerHTML={{ __html: t("help.modeSelector") }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.topNSelector") }}/>
+      </ul>
 
-    <h3>Click behavior</h3>
-    <ul>
-      <li>Click a row → focuses the value (adds a blue filter badge).</li>
-      <li><strong>{ctrlKeyLabel} + Click</strong> → applies <strong>Exclude</strong> immediately.</li>
-      <li>See <strong>Row actions</strong>.</li>
-    </ul>
+      <h3>{t("help.columns")}</h3>
+      <ul>
+        <li dangerouslySetInnerHTML={{ __html: t("help.valuesHitsCol") }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.valuesPercentCol") }}/>
+      </ul>
 
-    <hr/>
+      <h3>{t("help.clickBehavior")}</h3>
+      <ul>
+        <li>{t("help.valuesClickRowFocus")}</li>
+        <li dangerouslySetInnerHTML={{ __html: t("help.ctrlClickExclude").replace("{ctrlKey}", ctrlKeyLabel) }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.valuesSeeRowActions") }}/>
+      </ul>
 
-    <h2 id="row-actions">Row actions</h2>
-    <ul>
-      <li>
-        <strong>Focus</strong> — adds a <strong>blue filter badge</strong> and updates <strong>Preview logs</strong>.
-        Does <strong>not</strong> change global filters.
-      </li>
-      <li>
-        <strong>Include</strong> — adds a <strong>global include filter</strong> (gray badge) for the selected item.
-      </li>
-      <li>
-        <strong>Exclude</strong> — adds a <strong>global exclude filter</strong> (gray badge) for the selected item.
-      </li>
-      <li>
-        <strong>Copy</strong> — copies the selected <strong>name</strong> (from <em>Names</em>) or the
-        <strong> name–value</strong> pair (from <em>Values</em>).
-      </li>
-    </ul>
+      <hr/>
 
-    <p>
-      <strong>Note:</strong> <strong>Include/Exclude</strong> appear as <strong>gray badges</strong> in
-      <strong> Global filters</strong> and affect <strong>all queries on this page</strong> until removed.
-    </p>
+      <h2 id="row-actions">{t("help.rowActionsTitle")}</h2>
+      <ul>
+        <li dangerouslySetInnerHTML={{ __html: t("help.focusAction") }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.includeAction") }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.excludeAction") }}/>
+        <li dangerouslySetInnerHTML={{ __html: t("help.copyAction") }}/>
+      </ul>
 
-    <hr/>
+      <p dangerouslySetInnerHTML={{ __html: t("help.note") }}/>
 
-    <p><em>* Search and sorting are local (client-side) in both <strong>Names</strong> and <strong>Values</strong> tables.</em></p>
-  </div>
-);
+      <hr/>
+
+      <p><em dangerouslySetInnerHTML={{ __html: t("help.footnote") }}/></p>
+    </div>
+  );
+};
 
 export default OverviewFieldsHelpContent;

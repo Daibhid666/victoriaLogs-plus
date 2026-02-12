@@ -3,6 +3,7 @@ import StreamContextList from "./StreamContextList";
 import { Logs } from "../../api/types";
 import { LOGS_DISPLAY_FIELDS, LOGS_URL_PARAMS } from "../../constants/logs";
 import { useMemo } from "react";
+import useI18n from "../../i18n/useI18n";
 import "./style.scss";
 
 const StreamContext = () => {
@@ -12,8 +13,10 @@ const StreamContext = () => {
   const displayFieldsString = searchParams.get(LOGS_URL_PARAMS.DISPLAY_FIELDS) || LOGS_DISPLAY_FIELDS;
   const displayFields = useMemo(() => displayFieldsString.split(","), [displayFieldsString]);
 
+  const { t } = useI18n();
+
   if (!_stream_id || !_time) {
-    return <div>Error: Missing stream ID or time.</div>;
+    return <div>{t("context.errorMissing")}</div>;
   }
 
   const log: Logs = { _stream_id, _time, _msg: "", _stream: "" };

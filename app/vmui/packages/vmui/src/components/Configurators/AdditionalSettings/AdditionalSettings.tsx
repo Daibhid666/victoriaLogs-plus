@@ -11,11 +11,13 @@ import useBoolean from "../../../hooks/useBoolean";
 import Tooltip from "../../Main/Tooltip/Tooltip";
 import { AUTOCOMPLETE_QUICK_KEY } from "../../Main/ShortcutKeys/constants/keyList";
 import { useQuickAutocomplete } from "../../../hooks/useQuickAutocomplete";
+import useI18n from "../../../i18n/useI18n";
 
 const AdditionalSettingsControls: FC = () => {
   const { isMobile } = useDeviceDetect();
   const { autocomplete } = useQueryState();
   const queryDispatch = useQueryDispatch();
+  const { t } = useI18n();
   useQuickAutocomplete();
 
   const onChangeAutocomplete = () => {
@@ -29,9 +31,9 @@ const AdditionalSettingsControls: FC = () => {
         "vm-additional-settings_mobile": isMobile
       })}
     >
-      <Tooltip title={<>Quick tip: {AUTOCOMPLETE_QUICK_KEY}</>}>
+      <Tooltip title={<>{t("editor.quickTip")} {AUTOCOMPLETE_QUICK_KEY}</>}>
         <Switch
-          label={"Autocomplete"}
+          label={t("additionalSettings.autocomplete")}
           value={autocomplete}
           onChange={onChangeAutocomplete}
           fullWidth={isMobile}
@@ -43,6 +45,7 @@ const AdditionalSettingsControls: FC = () => {
 
 const AdditionalSettings: FC = () => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
   const targetRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -67,7 +70,7 @@ const AdditionalSettings: FC = () => {
           buttonRef={targetRef}
           placement="bottom-left"
           onClose={handleCloseList}
-          title={"Query settings"}
+          title={t("additionalSettings.querySettings")}
         >
           <AdditionalSettingsControls/>
         </Popper>

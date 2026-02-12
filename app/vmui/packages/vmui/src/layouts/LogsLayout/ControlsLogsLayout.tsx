@@ -35,7 +35,7 @@ const ControlsLogsLayout: FC<ControlsProps> = ({ isMobile, headerSetup }) => {
       {headerSetup?.timeSelector && <TimeSelector onOpenSettings={settingsRef?.current?.open}/>}
       {headerSetup?.executionControls &&  <ExecutionControls/>}
       <GlobalSettings ref={settingsRef}/>
-      <Tooltip title={`${t("lang.switch")}: ${locale === "en" ? t("lang.zh") : t("lang.en")}`}>
+      <Tooltip title={`${t("lang.switch")}: ${locale === "en" ? t("lang.en") : t("lang.zh")}`}>
         <Button
           className={appModeEnable ? "" : "vm-header-button"}
           variant="contained"

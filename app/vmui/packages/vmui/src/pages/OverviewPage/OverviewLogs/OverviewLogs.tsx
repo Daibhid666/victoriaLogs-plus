@@ -15,6 +15,7 @@ import { CopyIcon, DoneIcon, OpenNewIcon } from "../../../components/Main/Icons"
 import useCopyToClipboard from "../../../hooks/useCopyToClipboard";
 import router from "../../../router";
 import { escapeDoubleQuotes } from "../../../utils/regexp";
+import useI18n from "../../../i18n/useI18n";
 
 const operator = ExtraFilterOperator.Equals;
 
@@ -24,6 +25,7 @@ const getQueryFromArray = (field: string, values: string[]) => {
 };
 
 const OverviewLogs:FC = () => {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
 
   const { period, relativeTime, duration } = useTimeState();
@@ -78,7 +80,7 @@ const OverviewLogs:FC = () => {
   }, [query, duration, relativeTime]);
 
   const handleCopyQuery  = async () => {
-    await copyToClipboard(query, "Query has been copied");
+    await copyToClipboard(query, t("common.queryCopied"));
     setCopied(true);
   };
 
@@ -97,14 +99,14 @@ const OverviewLogs:FC = () => {
   return (
     <div className="vm-overview-logs vm-block">
       <div className="vm-overview-logs-header">
-        <span className="vm-title">Query:</span>
+        <span className="vm-title">{t("overview.query")}</span>
         <div className="vm-overview-logs-query">
           <p className="vm-overview-logs-query__expr">{query}</p>
 
         </div>
         <div className="vm-overview-logs-header__actions">
           <SelectLimit
-            label="Limit"
+            label={t("overview.limit")}
             limit={limit}
             onChange={setLimit}
           />
@@ -114,7 +116,7 @@ const OverviewLogs:FC = () => {
             startIcon={copied ? <DoneIcon/> : <CopyIcon/>}
             onClick={handleCopyQuery}
           >
-            {copied ? "Copied" : "Copy query"}
+            {copied ? t("common.copied") : t("overview.copyQuery")}
           </Button>
           <Link
             to={linkToLogs}
@@ -126,7 +128,7 @@ const OverviewLogs:FC = () => {
               variant="text"
               startIcon={<OpenNewIcon/>}
             >
-              Open query
+              {t("overview.openQuery")}
             </Button>
           </Link>
         </div>

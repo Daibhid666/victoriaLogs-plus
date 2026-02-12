@@ -5,61 +5,61 @@ const ctrlMeta = <code>{ctrlKeyLabel}</code>;
 
 export const AUTOCOMPLETE_QUICK_KEY = <>{<code>{isMacOs() ? altKeyLabel : "Ctrl"}</code>} + <code>Space</code></>;
 
-const keyList = [
+const getKeyList = (t: (key: any) => string) => [
   {
-    title: "Query",
+    title: t("shortcuts.query"),
     list: [
       {
         keys: <code>Enter</code>,
-        description: "Run"
+        description: t("shortcuts.run")
       },
       {
         keys: <><code>Shift</code> + <code>Enter</code></>,
-        description: "Multi-line queries"
+        description: t("shortcuts.multiLine")
       },
       {
         keys: <>{ctrlMeta} + <code>Arrow Up</code></>,
-        description: "Previous command from the Query history"
+        description: t("shortcuts.prevCommand")
       },
       {
         keys: <>{ctrlMeta} + <code>Arrow Down</code></>,
-        description: "Next command from the Query history"
+        description: t("shortcuts.nextCommand")
       },
       {
         keys: AUTOCOMPLETE_QUICK_KEY,
-        description: "Show quick autocomplete tips"
+        description: t("shortcuts.quickAutocomplete")
       }
     ]
   },
   {
-    title: "Graph",
+    title: t("shortcuts.graph"),
     list: [
       {
         keys: <>{ctrlMeta} + <code>scroll Up</code> or <code>+</code></>,
-        description: "Zoom in"
+        description: t("shortcuts.zoomIn")
       },
       {
         keys: <>{ctrlMeta} + <code>scroll Down</code> or <code>-</code></>,
-        description: "Zoom out"
+        description: t("shortcuts.zoomOut")
       },
       {
         keys: <>{ctrlMeta} + <code>drag</code></>,
-        description: "Move the graph left/right"
+        description: t("shortcuts.moveGraph")
       },
       {
         keys: <><code>click</code> on legend item</>,
-        description: "Open the legend item menu"
+        description: t("shortcuts.openLegendMenu")
       },
       {
         keys: <><code>{altKeyLabel}</code> + <code>click</code> on legend item</>,
-        description: "Hide or show this series"
+        description: t("shortcuts.toggleSeries")
       },
       {
         keys: <>{ctrlMeta} + <code>click</code> on legend item</>,
-        description: "Show only this series or show all series"
+        description: t("shortcuts.focusSeries")
       }
     ]
   },
 ];
 
-export default keyList;
+export default getKeyList;

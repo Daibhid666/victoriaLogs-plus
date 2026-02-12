@@ -7,6 +7,7 @@ import useBoolean from "../../hooks/useBoolean";
 import Modal from "../../components/Main/Modal/Modal";
 import { useMemo } from "preact/compat";
 import StreamContextList from "./StreamContextList";
+import useI18n from "../../i18n/useI18n";
 
 interface Props {
   log: Logs;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const StreamContextButton: FC<Props> = ({ log, displayFields }) => {
+  const { t } = useI18n();
   const requiredFields = ["_stream_id", "_time"];
   const showContextButton = useMemo(() => requiredFields.every(field => log[field]), [log]);
 
@@ -38,7 +40,7 @@ const StreamContextButton: FC<Props> = ({ log, displayFields }) => {
 
   return (
     <>
-      <Tooltip title="Show context">
+      <Tooltip title={t("context.showContext")}>
         <Button
           variant="text"
           color="gray"
@@ -49,7 +51,7 @@ const StreamContextButton: FC<Props> = ({ log, displayFields }) => {
       </Tooltip>
       {isOpenContext && (
         <Modal
-          title={"Log context"}
+          title={t("context.logContext")}
           isOpen={isOpenContext}
           onClose={handleCloseModal}
         >

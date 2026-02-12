@@ -1,12 +1,12 @@
-import { FC, ReactNode, useCallback } from "preact/compat";
+import { FC, ReactNode, useCallback, useMemo } from "preact/compat";
 import Modal from "../Modal/Modal";
 import "./style.scss";
 import Tooltip from "../Tooltip/Tooltip";
-import keyList from "./constants/keyList";
+import getKeyList from "./constants/keyList";
 import useBoolean from "../../../hooks/useBoolean";
 import useEventListener from "../../../hooks/useEventListener";
+import useI18n from "../../../i18n/useI18n";
 
-const title = "Shortcut keys";
 const keyOpenHelp = "F1";
 
 type Props = {
@@ -15,6 +15,9 @@ type Props = {
 }
 
 const ShortcutKeys: FC<Props> = ({ children, withHotkey = true }) => {
+  const { t } = useI18n();
+  const keyList = useMemo(() => getKeyList(t), [t]);
+  const title = t("shortcuts.title");
 
   const {
     value: openList,
@@ -42,7 +45,7 @@ const ShortcutKeys: FC<Props> = ({ children, withHotkey = true }) => {
 
     {openList && (
       <Modal
-        title={"Shortcut keys"}
+        title={title}
         onClose={handleClose}
       >
         <div className="vm-shortcuts">

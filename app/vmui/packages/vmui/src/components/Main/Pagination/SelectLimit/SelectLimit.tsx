@@ -9,6 +9,7 @@ import Button from "../../Button/Button";
 import TextField from "../../TextField/TextField";
 import { useState } from "react";
 import { ComponentChildren } from "preact";
+import useI18n from "../../../../i18n/useI18n";
 
 interface SelectLimitProps<T extends string | number> {
   limit: T;
@@ -44,6 +45,7 @@ export const SelectLimit = <T extends string | number>(props: SelectLimitProps<T
   const [search, setSearch] = useState("");
 
   const { isMobile } = useDeviceDetect();
+  const { t } = useI18n();
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const limits = useMemo(() => {
@@ -81,7 +83,7 @@ export const SelectLimit = <T extends string | number>(props: SelectLimitProps<T
         ref={buttonRef}
       >
         <div>
-          {label || (isMobile ? "Rows" : "Rows per page")}: <b>{renderOptionLabel ? renderOptionLabel(limit, true) : limit || "All"}</b>
+          {label || (isMobile ? t("select.rows") : t("select.rowsPerPage"))}: <b>{renderOptionLabel ? renderOptionLabel(limit, true) : limit || t("select.all")}</b>
         </div>
         <ArrowDropDownIcon/>
       </div>
@@ -99,7 +101,7 @@ export const SelectLimit = <T extends string | number>(props: SelectLimitProps<T
               variant="text"
               startIcon={<SpinnerIcon/>}
             >
-              loading...
+              {t("select.loading")}
             </Button>
           )}
 
@@ -112,7 +114,7 @@ export const SelectLimit = <T extends string | number>(props: SelectLimitProps<T
 
           {!isLoading && !error && limits.length === 0 && (
             <div className="vm-select-limits__empty">
-              {textNoOptions || "No options available"}
+              {textNoOptions || t("select.noOptions")}
             </div>
           )}
 
@@ -120,7 +122,7 @@ export const SelectLimit = <T extends string | number>(props: SelectLimitProps<T
             <div className="vm-select-limits__search">
               <TextField
                 autofocus
-                label="Search"
+                label={t("select.search")}
                 value={search}
                 onChange={setSearch}
               />
@@ -139,7 +141,7 @@ export const SelectLimit = <T extends string | number>(props: SelectLimitProps<T
                 key={n}
                 onClick={handleChangeLimit(n as T)}
               >
-                {renderOptionLabel ? renderOptionLabel(n as T, false) : n || "All"}
+                {renderOptionLabel ? renderOptionLabel(n as T, false) : n || t("select.all")}
               </div>
             ))}
           </div>

@@ -1,6 +1,8 @@
+import type { TranslationKeys } from "../../../i18n/locales/en";
+
 export type TotalsConfig = {
-  title: string;
-  description: string;
+  titleKey: TranslationKeys;
+  descKey: TranslationKeys;
   alias: string;
   stats: string;
   statsExpr: string;
@@ -9,30 +11,31 @@ export type TotalsConfig = {
 
 const defaultFormatNumber = (n: number) => n.toLocaleString("en-US");
 
-export const explorerTotals: TotalsConfig[] = [
+const explorerTotalsRaw = [
   {
-    title: "Total logs",
-    description: "Total number of selected logs on the selected time range",
+    titleKey: "totals.totalLogs" as const,
+    descKey: "totals.totalLogsDesc" as const,
     alias: "totalLogs",
     stats: "count()",
     formatter: defaultFormatNumber,
   },
   {
-    title: "Logs/sec (avg)",
-    description: "Average logs per second on the selected time range",
+    titleKey: "totals.logsPerSec" as const,
+    descKey: "totals.logsPerSecDesc" as const,
     alias: "logsPerSec",
     stats: "rate()",
     formatter: defaultFormatNumber,
   },
   {
-    title: "Unique log streams",
-    description: "The number of log streams on the selected time range",
+    titleKey: "totals.uniqueStreams" as const,
+    descKey: "totals.uniqueStreamsDesc" as const,
     alias: "uniqueStreams",
     stats: "count_uniq(_stream_id)",
     formatter: (n: number) => `${defaultFormatNumber(n)}`,
   },
-].map(t => ({
+];
+
+export const explorerTotals: TotalsConfig[] = explorerTotalsRaw.map(t => ({
   ...t,
   statsExpr: `${t.stats} as ${t.alias}`,
-  description: t.description + `\n\`* | ${t.stats}\``,
 }));

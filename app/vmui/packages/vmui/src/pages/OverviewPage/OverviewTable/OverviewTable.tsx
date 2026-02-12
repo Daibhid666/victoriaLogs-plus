@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import TextField from "../../../components/Main/TextField/TextField";
 import Tooltip from "../../../components/Main/Tooltip/Tooltip";
 import { QuestionIcon } from "../../../components/Main/Icons";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props extends OverviewTableProps {
   title: ReactNode | string;
@@ -20,6 +21,7 @@ const OverviewTable: FC<Props> = ({
   headerControls,
   ...props
 }) => {
+  const { t } = useI18n();
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { value: showSearch, toggle: handleToggleShowSearch } = useBoolean(false);
@@ -45,11 +47,11 @@ const OverviewTable: FC<Props> = ({
         <div className="vm-top-fields__search">
           <TextField
             autofocus
-            label="Search"
+            label={t("overviewTable.search")}
             value={searchValue}
             onChange={setSearchValue}
             endIcon={(
-              <Tooltip title={"Filters rows in the current table only. Does not send queries to the server."}>
+              <Tooltip title={t("overviewTable.searchTooltip")}>
                 <QuestionIcon/>
               </Tooltip>
             )}

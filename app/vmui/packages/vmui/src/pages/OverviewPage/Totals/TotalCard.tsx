@@ -8,6 +8,7 @@ import classNames from "classnames";
 import { TimeParams } from "../../../types";
 import dayjs from "dayjs";
 import { DATE_TIME_FORMAT } from "../../../constants/date";
+import useI18n from "../../../i18n/useI18n";
 
 interface Props extends TotalsConfig {
   isLoading: boolean;
@@ -19,7 +20,8 @@ interface Props extends TotalsConfig {
   }
 }
 
-const TotalCard: FC<Props> = ({ title, value, valuePrev, description, formatter, isLoading, periods }) => {
+const TotalCard: FC<Props> = ({ titleKey, value, valuePrev, descKey, formatter, isLoading, periods, stats }) => {
+  const { t } = useI18n();
   const { curr, delta, deltaPct } = useMemo(() => {
     const currNum = Number(value ?? 0);
     const prevNum = valuePrev === undefined ? NaN : Number(valuePrev);
@@ -48,9 +50,9 @@ const TotalCard: FC<Props> = ({ title, value, valuePrev, description, formatter,
       {isLoading && <LineLoader/>}
 
       <div className="vm-total-card-header">
-        <h3 className="vm-total-card__title vm-title">{title}</h3>
+        <h3 className="vm-total-card__title vm-title">{t(titleKey)}</h3>
         <Tooltip
-          title={<div className="vm-total-card-info__text">{description}</div>}
+          title={<div className="vm-total-card-info__text">{t(descKey)}{`\n\`* | ${stats}\``}</div>}
           placement="bottom-right"
         >
           <div className="vm-total-card-info__icon"><InfoIcon/></div>
@@ -66,7 +68,7 @@ const TotalCard: FC<Props> = ({ title, value, valuePrev, description, formatter,
           <Tooltip
             title={(
               <div>
-                <p>Change compared to the previous time range:</p>
+                <p>{t("totals.prevTimeRange")}</p>
                 {!!prevTimeRange && <p>{prevTimeRange}</p>}
               </div>
             )}

@@ -13,6 +13,18 @@
     gap: $padding-global;
   }
 
+  &-query {
+    display: flex;
+    align-items: flex-start;
+    gap: $padding-small;
+    min-width: 0;
+
+    .vm-query-editor {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
   &-bottom {
     display: flex;
     flex-wrap: wrap;
