@@ -12,6 +12,7 @@ import { KeyboardIcon, LanguageIcon } from "../../components/Main/Icons";
 import Tooltip from "../../components/Main/Tooltip/Tooltip";
 import useI18n from "../../i18n/useI18n";
 import type { Locale } from "../../i18n/I18nContext";
+import { patchGlobalSettingsOnServer } from "../../api/globalSettings";
 
 const ControlsLogsLayout: FC<ControlsProps> = ({ isMobile, headerSetup }) => {
   const appModeEnable = getAppModeEnable();
@@ -21,6 +22,7 @@ const ControlsLogsLayout: FC<ControlsProps> = ({ isMobile, headerSetup }) => {
   const toggleLocale = () => {
     const next: Locale = locale === "en" ? "zh" : "en";
     setLocale(next);
+    void patchGlobalSettingsOnServer({ locale: next });
   };
 
   return (
@@ -33,7 +35,7 @@ const ControlsLogsLayout: FC<ControlsProps> = ({ isMobile, headerSetup }) => {
 
       {headerSetup?.tenant && <Tenants/>}
       {headerSetup?.timeSelector && <TimeSelector onOpenSettings={settingsRef?.current?.open}/>}
-      {headerSetup?.executionControls &&  <ExecutionControls/>}
+      {headerSetup?.executionControls && <ExecutionControls/>}
       <GlobalSettings ref={settingsRef}/>
       <Tooltip title={`${t("lang.switch")}: ${locale === "en" ? t("lang.en") : t("lang.zh")}`}>
         <Button

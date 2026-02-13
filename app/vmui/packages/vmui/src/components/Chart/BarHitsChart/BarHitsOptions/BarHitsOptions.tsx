@@ -20,6 +20,7 @@ import { useExtraFilters } from "../../../../pages/OverviewPage/hooks/useExtraFi
 import { useTimeState } from "../../../../state/time/TimeStateContext";
 import { useFetchFieldNames } from "../../../../pages/OverviewPage/hooks/useFetchFieldNames";
 import useI18n from "../../../../i18n/useI18n";
+import { patchGlobalSettingsOnServer } from "../../../../api/globalSettings";
 
 interface Props {
   query?: string;
@@ -84,11 +85,13 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
   const handleChangeStacked = useCallback((val: boolean) => {
     setStacked(val);
     handleChangeSearchParams("stacked", val);
+    void patchGlobalSettingsOnServer({ stacked: val });
   }, [setStacked, handleChangeSearchParams]);
 
   const handleChangeCumulative = useCallback((val: boolean) => {
     setCumulative(val);
     handleChangeSearchParams("cumulative", val);
+    void patchGlobalSettingsOnServer({ cumulative: val });
   }, [setCumulative, handleChangeSearchParams]);
 
   const toggleHideChart = useCallback(() => {

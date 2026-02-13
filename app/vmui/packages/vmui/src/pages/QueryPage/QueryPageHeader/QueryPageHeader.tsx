@@ -18,6 +18,7 @@ import useI18n from "../../../i18n/useI18n";
 import FieldSelector from "../FieldSelector/FieldSelector";
 import { ExtraFilter } from "../../OverviewPage/FiltersBar/types";
 import { TimeParams } from "../../../types";
+import { patchGlobalSettingsOnServer } from "../../../api/globalSettings";
 
 interface Props {
   query: string;
@@ -54,8 +55,9 @@ const QueryPageHeader: FC<Props> = ({
 
   const { value: awaitQuery, setValue: setAwaitQuery } = useBoolean(false);
 
-  const onChangeAutocomplete = () => {
-    queryDispatch({ type: "TOGGLE_AUTOCOMPLETE" });
+  const onChangeAutocomplete = (value: boolean) => {
+    queryDispatch({ type: "SET_AUTOCOMPLETE", payload: value });
+    void patchGlobalSettingsOnServer({ autocomplete: value });
   };
 
   const handleHistoryChange = (step: number) => {

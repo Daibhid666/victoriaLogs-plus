@@ -12,6 +12,7 @@ import Tooltip from "../../Main/Tooltip/Tooltip";
 import { AUTOCOMPLETE_QUICK_KEY } from "../../Main/ShortcutKeys/constants/keyList";
 import { useQuickAutocomplete } from "../../../hooks/useQuickAutocomplete";
 import useI18n from "../../../i18n/useI18n";
+import { patchGlobalSettingsOnServer } from "../../../api/globalSettings";
 
 const AdditionalSettingsControls: FC = () => {
   const { isMobile } = useDeviceDetect();
@@ -20,8 +21,9 @@ const AdditionalSettingsControls: FC = () => {
   const { t } = useI18n();
   useQuickAutocomplete();
 
-  const onChangeAutocomplete = () => {
-    queryDispatch({ type: "TOGGLE_AUTOCOMPLETE" });
+  const onChangeAutocomplete = (value: boolean) => {
+    queryDispatch({ type: "SET_AUTOCOMPLETE", payload: value });
+    void patchGlobalSettingsOnServer({ autocomplete: value });
   };
 
   return (

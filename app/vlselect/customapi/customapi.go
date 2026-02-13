@@ -47,6 +47,9 @@ func RequestHandler(w http.ResponseWriter, r *http.Request) bool {
 	case "/api/group-settings":
 		jsonAPIHandler("group-settings.json", w, r)
 		return true
+	case "/api/global-settings":
+		jsonAPIHandler("global-settings.json", w, r)
+		return true
 	case "/api/field-selector-settings":
 		jsonAPIHandler("field-selector-settings.json", w, r)
 		return true

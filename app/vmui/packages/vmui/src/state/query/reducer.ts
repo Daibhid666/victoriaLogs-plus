@@ -28,6 +28,7 @@ export type QueryAction =
   | { type: "SET_QUERY_HISTORY_BY_INDEX", payload: { value: QueryHistoryType, queryNumber: number } }
   | { type: "SET_QUERY_HISTORY", payload: { key: HistoryKey, history: QueryHistoryType[] } }
   | { type: "TOGGLE_AUTOCOMPLETE" }
+  | { type: "SET_AUTOCOMPLETE", payload: boolean }
   | { type: "SET_AUTOCOMPLETE_QUICK", payload: boolean }
   | { type: "SET_AUTOCOMPLETE_CACHE", payload: { key: QueryAutocompleteCacheItem, value: string[] } }
   | { type: "SET_QUERY_HAS_TIME_FILTER", payload: boolean }
@@ -67,6 +68,12 @@ export function reducer(state: QueryState, action: QueryAction): QueryState {
       return {
         ...state,
         autocomplete: !state.autocomplete
+      };
+    case "SET_AUTOCOMPLETE":
+      saveToStorage("AUTOCOMPLETE", action.payload);
+      return {
+        ...state,
+        autocomplete: action.payload
       };
     case "SET_AUTOCOMPLETE_QUICK":
       return {
