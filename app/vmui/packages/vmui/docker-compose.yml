@@ -1,6 +1,6 @@
 services:
   victorialogs:
-    image: ghcr.io/daibhid666/victoria-logs:latest
+    image: ghcr.io/daibhid666/victoria-logs-plus:latest
     build:
       context: ../../../..
       dockerfile: Dockerfile

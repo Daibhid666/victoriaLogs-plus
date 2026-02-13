@@ -27,6 +27,9 @@ RUN rm -rf app/vlselect/vmui/* && \
 # Copy freshly built frontend (overwrite what was just copied from source)
 COPY --from=frontend /app/build/ app/vlselect/vmui/
 
+# Sync vendor directory
+RUN go mod vendor
+
 # Build VictoriaLogs binary
 RUN CGO_ENABLED=0 go build -mod=vendor -trimpath -buildvcs=false \
     -ldflags "-extldflags '-static'" \
