@@ -125,7 +125,7 @@ See the docs at https://docs.victoriametrics.com/victorialogs/vlagent/ .
      Supports an array of values separated by comma or specified via multiple flags.
      Each array item can contain comma inside single-quoted or double-quoted string, {}, [] and () braces.
   -kubernetesCollector.excludeFilter string
-     Optional LogsQL filter for excluding container logs. The filter is applied to container metadata fields (e.g., kubernetes.namespace_name, kubernetes.container_name) before reading the log files. This significantly reduces CPU and I/O usage by skipping logs from unwanted containers. See https://docs.victoriametrics.com/victorialogs/vlagent/#filtering-kubernetes-logs
+     Optional LogsQL filter for excluding container logs. The filter is applied to container metadata fields (e.g., kubernetes.pod_namespace, kubernetes.container_name) before reading the log files. This significantly reduces CPU and I/O usage by skipping logs from unwanted containers. See https://docs.victoriametrics.com/victorialogs/vlagent/#filtering-kubernetes-logs
   -kubernetesCollector.extraFields string
      Extra fields to add to each log line collected from Kubernetes pods in JSON format. For example: -kubernetesCollector.extraFields='{"cluster":"cluster-1","env":"production"}'
   -kubernetesCollector.ignoreFields array
@@ -133,13 +133,13 @@ See the docs at https://docs.victoriametrics.com/victorialogs/vlagent/ .
      Supports an array of values separated by comma or specified via multiple flags.
      Each array item can contain comma inside single-quoted or double-quoted string, {}, [] and () braces.
   -kubernetesCollector.includeNodeAnnotations
-     Include Node annotations as additional fields in the log entries. Even this setting is disabled, Node annotations are available for filtering via -kubernetes.excludeFilter flag
+     Include Node annotations as additional fields in the log entries. Even this setting is disabled, Node annotations are available for filtering via -kubernetesCollector.excludeFilter flag
   -kubernetesCollector.includeNodeLabels
-     Include Node labels as additional fields in the log entries. Even this setting is disabled, Node labels are available for filtering via -kubernetes.excludeFilter flag
+     Include Node labels as additional fields in the log entries. Even this setting is disabled, Node labels are available for filtering via -kubernetesCollector.excludeFilter flag
   -kubernetesCollector.includePodAnnotations
-     Include Pod annotations as additional fields in the log entries. Even this setting is disabled, Pod annotations are available for filtering via -kubernetes.excludeFilter flag
+     Include Pod annotations as additional fields in the log entries. Even this setting is disabled, Pod annotations are available for filtering via -kubernetesCollector.excludeFilter flag
   -kubernetesCollector.includePodLabels
-     Include Pod labels as additional fields in the log entries. Even this setting is disabled, Pod labels are available for filtering via -kubernetes.excludeFilter flag (default true)
+     Include Pod labels as additional fields in the log entries. Even this setting is disabled, Pod labels are available for filtering via -kubernetesCollector.excludeFilter flag (default true)
   -kubernetesCollector.logsPath string
      Path to the directory with Kubernetes container logs (usually /var/log/containers). This should point to the kubelet-managed directory containing symlinks to pod logs. vlagent must have read access to this directory and to the target log files, typically located under /var/log/pods and /var/lib on the host (default "/var/log/containers")
   -kubernetesCollector.msgField array

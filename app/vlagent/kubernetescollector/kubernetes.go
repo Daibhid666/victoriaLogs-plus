@@ -26,7 +26,7 @@ var (
 			"This should point to the kubelet-managed directory containing symlinks to pod logs. "+
 			"vlagent must have read access to this directory and to the target log files, typically located under /var/log/pods and /var/lib on the host")
 	excludeFilter = flag.String("kubernetesCollector.excludeFilter", "", "Optional LogsQL filter for excluding container logs. "+
-		"The filter is applied to container metadata fields (e.g., kubernetes.namespace_name, kubernetes.container_name) before reading the log files. "+
+		"The filter is applied to container metadata fields (e.g., kubernetes.pod_namespace, kubernetes.container_name) before reading the log files. "+
 		"This significantly reduces CPU and I/O usage by skipping logs from unwanted containers. "+
 		"See https://docs.victoriametrics.com/victorialogs/vlagent/#filtering-kubernetes-logs")
 )
@@ -62,7 +62,7 @@ func Init(tmpDataPath string) {
 	if *excludeFilter != "" {
 		excludeF, err = logstorage.ParseFilter(*excludeFilter)
 		if err != nil {
-			logger.Fatalf("cannot parse LogsQL -kubernetesContainer.excludeFilter=%q: %s", *excludeFilter, err)
+			logger.Fatalf("cannot parse LogsQL -kubernetesCollector.excludeFilter=%q: %s", *excludeFilter, err)
 		}
 	}
 
