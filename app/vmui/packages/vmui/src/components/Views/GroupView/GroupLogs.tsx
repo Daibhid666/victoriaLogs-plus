@@ -74,13 +74,15 @@ const GroupLogs: FC<Props> = ({ logs, settingsRef }) => {
   }, []);
 
   const handleSetRowsPerPage = (limit?: number) => {
-    if (limit) {
-      searchParams.set(LOGS_URL_PARAMS.ROWS_PER_PAGE, String(limit));
-    } else {
-      searchParams.set(LOGS_URL_PARAMS.ROWS_PER_PAGE, "all");
-    }
-
-    setSearchParams(searchParams);
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (limit) {
+        next.set(LOGS_URL_PARAMS.ROWS_PER_PAGE, String(limit));
+      } else {
+        next.set(LOGS_URL_PARAMS.ROWS_PER_PAGE, "all");
+      }
+      return next;
+    });
   };
 
   const handlePageChange = (newPage: number) => {

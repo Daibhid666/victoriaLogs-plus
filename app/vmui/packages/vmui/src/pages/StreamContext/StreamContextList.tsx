@@ -55,8 +55,11 @@ const StreamContextList: FC<Props> = ({ log, displayFields, isModal }) => {
   };
 
   const toggleWrapLines = () => {
-    searchParams.set(LOGS_URL_PARAMS.NO_WRAP_LINES, String(!noWrapLines));
-    setSearchParams(searchParams);
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      next.set(LOGS_URL_PARAMS.NO_WRAP_LINES, String(!noWrapLines));
+      return next;
+    });
   };
 
   useEffect(() => {

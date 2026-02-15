@@ -126,6 +126,7 @@ func main() {
 	mux.HandleFunc("/api/query-history", jsonAPIHandler("query-history.json"))
 	mux.HandleFunc("/api/group-settings", jsonAPIHandler("group-settings.json"))
 	mux.HandleFunc("/api/global-settings", jsonAPIHandler("global-settings.json"))
+	mux.HandleFunc("/api/field-selector-settings", jsonAPIHandler("field-selector-settings.json"))
 
 	log.Printf("API server starting at %s", *listenAddr)
 	log.Fatal(http.ListenAndServe(*listenAddr, mux))

@@ -43,13 +43,19 @@ const GroupLogsFieldRow: FC<Props> = ({ field, value, hideGroupButton }) => {
   const handleSelectDisplayField = () => {
     const prev = displayFields;
     const newDisplayFields = prev.includes(field) ? prev.filter(v => v !== field) : [...prev, field];
-    searchParams.set(LOGS_URL_PARAMS.DISPLAY_FIELDS, newDisplayFields.join(","));
-    setSearchParams(searchParams);
+    setSearchParams(prevParams => {
+      const next = new URLSearchParams(prevParams);
+      next.set(LOGS_URL_PARAMS.DISPLAY_FIELDS, newDisplayFields.join(","));
+      return next;
+    });
   };
 
   const handleSelectGroupBy = () => {
-    isGroupByField ? searchParams.delete(LOGS_URL_PARAMS.GROUP_BY) : searchParams.set(LOGS_URL_PARAMS.GROUP_BY, field);
-    setSearchParams(searchParams);
+    setSearchParams(prevParams => {
+      const next = new URLSearchParams(prevParams);
+      isGroupByField ? next.delete(LOGS_URL_PARAMS.GROUP_BY) : next.set(LOGS_URL_PARAMS.GROUP_BY, field);
+      return next;
+    });
   };
 
   useEffect(() => {

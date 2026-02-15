@@ -1,30 +1,20 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCallback } from "preact/compat";
 
 
 const useSearchParamsFromObject = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const setSearchParamsFromKeys = useCallback((objectParams: Record<string, string | number>) => {
-    const hasSearchParams = !!Array.from(searchParams.values()).length;
-    let hasChanged = false;
-
+    const hash = window.location.hash || "";
+    const questionIndex = hash.indexOf("?");
+    const currentSearch = questionIndex >= 0 ? hash.slice(questionIndex) : "";
+    const next = new URLSearchParams(currentSearch);
     Object.entries(objectParams).forEach(([key, value]) => {
-      if (searchParams.get(key) !== `${value}`) {
-        searchParams.set(key, `${value}`);
-        hasChanged = true;
-      }
+      next.set(key, `${value}`);
     });
-
-    if (!hasChanged) return;
-
-    if (hasSearchParams) {
-      setSearchParams(searchParams);
-    } else {
-      navigate(`?${searchParams.toString()}`, { replace: true });
-    }
-  }, [searchParams, navigate]);
+    navigate(`?${next.toString()}`, { replace: true });
+  }, [navigate]);
 
   return {
     setSearchParamsFromKeys

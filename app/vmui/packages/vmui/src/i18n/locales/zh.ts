@@ -77,6 +77,8 @@ const zh: Record<TranslationKeys, string> = {
   "settings.timezone": "时区",
   "settings.queryTimeOverride": "查询时间覆盖",
   "settings.overrideTimeLabel": "使用查询 _time 过滤器覆盖时间选择器",
+  "settings.logLimit": "日志限制",
+  "settings.logLimitDescription": "每次查询默认返回的日志条数",
   "settings.themePreferences": "主题偏好",
   "settings.themeSystem": "跟随系统",
   "settings.themeLight": "浅色",

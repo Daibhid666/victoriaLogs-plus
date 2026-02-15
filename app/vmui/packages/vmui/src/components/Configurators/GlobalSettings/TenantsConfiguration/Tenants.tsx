@@ -38,9 +38,12 @@ const Tenants: FC = () => {
   } = useBoolean(false);
 
   const onChange = ({ accountId, projectId }: Partial<TenantType>) => {
-    if (accountId) searchParams.set("accountID", accountId);
-    if (projectId) searchParams.set("projectID", projectId);
-    setSearchParams(searchParams);
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (accountId) next.set("accountID", accountId);
+      if (projectId) next.set("projectID", projectId);
+      return next;
+    });
     timeDispatch({ type: "RUN_QUERY" });
     handleClosePopup();
   };

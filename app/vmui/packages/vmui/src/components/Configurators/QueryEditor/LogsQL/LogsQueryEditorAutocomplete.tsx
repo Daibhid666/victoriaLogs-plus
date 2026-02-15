@@ -47,18 +47,22 @@ const LogsQueryEditorAutocomplete: FC<QueryEditorAutocompleteProps> = ({
   const { fieldNames, fieldValues, loading } = useFetchLogsQLOptions(contextData);
 
   const options = useMemo(() => {
+    const hasAlphaInput = /[a-zA-Z]/.test(contextData?.valueContext || "");
+
     switch (contextData?.contextType) {
       case ContextType.FilterName:
       case ContextType.FilterUnknown:
         return fieldNames;
       case ContextType.FilterValue:
-        return fieldValues;
+        return fieldValues.length ? fieldValues : fieldNames;
       case ContextType.PipeName:
+        return pipeList;
+      case ContextType.PipeValue:
         return pipeList;
       case ContextType.FilterOrPipeName:
         return [...fieldNames, ...pipeList];
       default:
-        return [];
+        return hasAlphaInput ? [...fieldNames, ...pipeList] : [];
     }
   }, [contextData, fieldNames, fieldValues]);
 

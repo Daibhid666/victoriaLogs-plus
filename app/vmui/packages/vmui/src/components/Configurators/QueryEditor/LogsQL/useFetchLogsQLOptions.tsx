@@ -17,6 +17,30 @@ type FetchDataArgs = {
   params?: URLSearchParams;
 }
 
+const sanitizeAutocompleteQuery = (query?: string): string => {
+  if (!query) return "*";
+  const trimmed = query.trim();
+  if (!trimmed) return "*";
+  // Autocomplete requests can be built from an incomplete expression, e.g. `a:* AND`
+  // which backend rejects. Remove trailing standalone logical operator.
+  const safeQuery = trimmed.replace(/\s+(AND|OR|NOT)\s*$/i, "").trim();
+  return safeQuery || "*";
+};
+
+const getRequestVariants = (params?: URLSearchParams): URLSearchParams[] => {
+  const base = new URLSearchParams(params);
+  base.set("query", sanitizeAutocompleteQuery(base.get("query") || undefined));
+
+  const fallback = new URLSearchParams(base);
+  fallback.set("query", "*");
+
+  if (fallback.toString() === base.toString()) {
+    return [base];
+  }
+
+  return [base, fallback];
+};
+
 const icons = {
   [ContextType.FilterName]: <MetricIcon/>,
   [ContextType.FilterUnknown]: <MetricIcon/>,
@@ -66,35 +90,52 @@ export const useFetchLogsQLOptions = (contextData?: ContextData) => {
     abortControllerRef.current = new AbortController();
     const { signal } = abortControllerRef.current;
     const tenantString = new URLSearchParams(tenant).toString();
-
-    const key = `${urlSuffix}?${params?.toString()}&${tenantString}`;
+    const requestVariants = getRequestVariants(params);
+    const originalKey = `${urlSuffix}?${requestVariants[0].toString()}&${tenantString}`;
 
     setLoading(true);
     try {
-      const cachedData = autocompleteCache.get(key);
-      if (cachedData) {
-        setter(cachedData);
-        setLoading(false);
-        return;
-      }
+      for (const requestParams of requestVariants) {
+        const key = `${urlSuffix}?${requestParams.toString()}&${tenantString}`;
 
-      const response = await fetch(`${serverUrl}/select/logsql/${urlSuffix}`, {
-        signal,
-        method: "POST",
-        headers: { ...tenant },
-        body: params,
-      });
+        const cachedData = autocompleteCache.get(key);
+        if (cachedData) {
+          setter(cachedData);
+          if (key !== originalKey) {
+            dispatch({ type: "SET_AUTOCOMPLETE_CACHE", payload: { key: originalKey, value: cachedData } });
+          }
+          setLoading(false);
+          return;
+        }
 
-      if (response.ok) {
+        const response = await fetch(`${serverUrl}/select/logsql/${urlSuffix}`, {
+          signal,
+          method: "POST",
+          headers: { ...tenant },
+          body: requestParams,
+        });
+
+        if (!response.ok) {
+          continue;
+        }
+
         const data = await response.json();
         const value = (data?.values || []) as LogsFiledValues[];
         setter(value || []);
         dispatch({ type: "SET_AUTOCOMPLETE_CACHE", payload: { key, value } });
+        if (key !== originalKey) {
+          dispatch({ type: "SET_AUTOCOMPLETE_CACHE", payload: { key: originalKey, value } });
+        }
+        setLoading(false);
+        return;
       }
+
+      setter([]);
+      dispatch({ type: "SET_AUTOCOMPLETE_CACHE", payload: { key: originalKey, value: [] } });
       setLoading(false);
     } catch (e) {
       if (e instanceof Error && e.name !== "AbortError") {
-        dispatch({ type: "SET_AUTOCOMPLETE_CACHE", payload: { key, value: [] } });
+        dispatch({ type: "SET_AUTOCOMPLETE_CACHE", payload: { key: originalKey, value: [] } });
         setLoading(false);
         console.error(e);
       }
@@ -103,7 +144,7 @@ export const useFetchLogsQLOptions = (contextData?: ContextData) => {
 
   // fetch field names
   useEffect(() => {
-    const validContexts = [ContextType.FilterName, ContextType.FilterUnknown, ContextType.FilterOrPipeName];
+    const validContexts = [ContextType.FilterName, ContextType.FilterUnknown, ContextType.FilterOrPipeName, ContextType.Unknown];
     const isInvalidContext = !validContexts.includes(contextData?.contextType || ContextType.Unknown);
     if (!serverUrl || isInvalidContext) {
       return;

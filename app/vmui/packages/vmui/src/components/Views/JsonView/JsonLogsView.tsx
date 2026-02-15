@@ -2,7 +2,6 @@ import { FC, useCallback, createPortal, memo } from "preact/compat";
 import { ViewProps } from "../../../pages/QueryPage/QueryPageBody/types";
 import EmptyLogs from "../../EmptyLogs/EmptyLogs";
 import "./style.scss";
-import { Logs } from "../../../api/types";
 import ScrollToTopButton from "../../ScrollToTopButton/ScrollToTopButton";
 import { CopyButton } from "../../CopyButton/CopyButton";
 import { JsonView as JsonViewComponent } from "./JsonView";
@@ -31,15 +30,17 @@ const JsonLogsView: FC<ViewProps> = ({ data, settingsRef }) => {
     );
   };
 
-  if (!data.length) return <EmptyLogs />;
-
   return (
     <div className={"vm-json-view"}>
       {renderSettings()}
-      <MemoizedJsonView
-        data={data}
-      />
-      <ScrollToTopButton />
+      {!data.length ? <EmptyLogs /> : (
+        <>
+          <MemoizedJsonView
+            data={data}
+          />
+          <ScrollToTopButton />
+        </>
+      )}
     </div>
   );
 };

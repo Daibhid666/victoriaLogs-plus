@@ -75,6 +75,8 @@ const en = {
   "settings.timezone": "Time zone",
   "settings.queryTimeOverride": "Query time override",
   "settings.overrideTimeLabel": "Override time picker with query _time filter",
+  "settings.logLimit": "Log limit",
+  "settings.logLimitDescription": "Default number of log entries returned per query",
   "settings.themePreferences": "Theme preferences",
   "settings.themeSystem": "System",
   "settings.themeLight": "Light",

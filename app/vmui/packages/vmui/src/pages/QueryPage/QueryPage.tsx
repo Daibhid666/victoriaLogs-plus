@@ -25,11 +25,20 @@ import { useLimitGuard } from "./LimitController/useLimitGuard";
 import LimitConfirmModal from "./LimitController/LimitConfirmModal";
 import { useFetchQueryTime } from "./hooks/useFetchQueryTime";
 import { GRAPH_QUERY_MODE } from "../../components/Chart/BarHitsChart/types";
+import { fetchGlobalSettingsFromServer, patchGlobalSettingsOnServer } from "../../api/globalSettings";
 
 const storageLimit = Number(getFromStorage("LOGS_LIMIT"));
 const defaultLimit = isNaN(storageLimit) ? LOGS_DEFAULT_LIMIT : storageLimit;
 
 type FetchFlags = { logs: boolean; hits: boolean };
+
+const normalizeFilterComposeQuery = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return "*";
+  // Keep selector-generated queries valid while user is adding/removing chips.
+  const withoutTrailingOperator = trimmed.replace(/(?:\s+(AND|OR|NOT)\s*)+$/gi, "").trim();
+  return withoutTrailingOperator || "*";
+};
 
 const QueryPage: FC = () => {
   const { queryHistory, queryHasTimeFilter } = useQueryState();
@@ -66,7 +75,21 @@ const QueryPage: FC = () => {
     setLimit(limit);
     setSearchParamsFromKeys({ limit });
     saveToStorage("LOGS_LIMIT", `${limit}`);
+    void patchGlobalSettingsOnServer({ logLimit: limit });
   };
+
+  // Listen for storage changes from GlobalSettings to sync the limit immediately
+  useEffect(() => {
+    const onStorage = () => {
+      const stored = Number(getFromStorage("LOGS_LIMIT"));
+      if (!isNaN(stored) && stored > 0 && stored !== limit) {
+        setLimit(stored);
+        setSearchParamsFromKeys({ limit: stored });
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [limit]);
 
   const { beforeFetch, modalProps } = useLimitGuard({ setLimit: handleChangeLimit });
 
@@ -157,9 +180,10 @@ const QueryPage: FC = () => {
   const handleApplyFilter = (val: ExtraFilter) => {
     const expr = filterToExpr(val);
     setQuery(prev => {
+      const baseQuery = normalizeFilterComposeQuery(prev);
       // Prevent adding duplicate filter expressions
-      if (prev.includes(expr)) return prev;
-      return `${expr} AND ${prev}`;
+      if (baseQuery.includes(expr)) return baseQuery;
+      return `${expr} AND ${baseQuery}`;
     });
     setIsUpdatingQuery(true);
   };
@@ -167,15 +191,16 @@ const QueryPage: FC = () => {
   const handleRemoveFilter = (val: ExtraFilter) => {
     const expr = filterToExpr(val);
     setQuery(prev => {
+      const baseQuery = normalizeFilterComposeQuery(prev);
       // Remove "expr AND " or " AND expr" patterns from the query
-      let next = prev;
+      let next = baseQuery;
       // Try removing "expr AND " (filter at the beginning or middle)
       next = next.replace(new RegExp(expr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s+AND\\s+", "g"), "");
       // Try removing " AND expr" (filter at the end)
       next = next.replace(new RegExp("\\s+AND\\s+" + expr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), "");
       // If the entire query was just the expression
-      if (next.trim() === expr.trim()) next = "*";
-      return next || "*";
+      if (next.trim() === expr.trim()) return "*";
+      return normalizeFilterComposeQuery(next);
     });
     setIsUpdatingQuery(true);
   };
@@ -198,6 +223,62 @@ const QueryPage: FC = () => {
     setPeriod(getPeriod());
     debouncedHandleRunQuery();
   }, [periodState]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    let attempts = 0;
+    let retryTimer: number | undefined;
+    const maxAttempts = 8;
+    const retryDelayMs = 500;
+
+    const loadSettings = async () => {
+      const settings = await fetchGlobalSettingsFromServer();
+      if (isCancelled) return;
+
+      if (!settings) {
+        if (attempts < maxAttempts) {
+          attempts += 1;
+          retryTimer = window.setTimeout(() => {
+            void loadSettings();
+          }, retryDelayMs);
+        }
+        return;
+      }
+
+      const patch: Record<string, string | number> = {};
+      const hash = window.location.hash || "";
+      const questionIndex = hash.indexOf("?");
+      const currentSearch = questionIndex >= 0 ? hash.slice(questionIndex) : "";
+      const currentParams = new URLSearchParams(currentSearch);
+
+      if (settings.logLimit && settings.logLimit > 0 && settings.logLimit !== limit) {
+        setLimit(settings.logLimit);
+        patch.limit = settings.logLimit;
+        saveToStorage("LOGS_LIMIT", `${settings.logLimit}`);
+      }
+
+      if (settings.stacked && !currentParams.has("stacked")) {
+        patch.stacked = "true";
+      }
+
+      if (settings.cumulative && !currentParams.has("cumulative")) {
+        patch.cumulative = "true";
+      }
+
+      if (Object.keys(patch).length) {
+        setSearchParamsFromKeys(patch);
+      }
+    };
+
+    void loadSettings();
+
+    return () => {
+      isCancelled = true;
+      if (retryTimer) {
+        window.clearTimeout(retryTimer);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!isUpdatingQuery) return;

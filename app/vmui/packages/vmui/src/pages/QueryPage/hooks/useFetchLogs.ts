@@ -73,11 +73,14 @@ export const useFetchLogs = (defaultQuery?: string, defaultLimit?: number) => {
     };
   };
 
-  const updateTenant = ({ accountId, projectId }: Partial<TenantType>) => {
-    if (accountId) searchParams.set("accountID", accountId);
-    if (projectId) searchParams.set("projectID", projectId);
-    setSearchParams(searchParams);
-  };
+  const updateTenant = useCallback(({ accountId, projectId }: Partial<TenantType>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (accountId) next.set("accountID", accountId);
+      if (projectId) next.set("projectID", projectId);
+      return next;
+    });
+  }, [setSearchParams]);
 
   const fetchLogs = useCallback(async ({
     query = defaultQuery,
@@ -157,7 +160,7 @@ export const useFetchLogs = (defaultQuery?: string, defaultLimit?: number) => {
         return rest;
       });
     }
-  }, [url, defaultQuery, defaultLimit, tenant]);
+  }, [url, defaultQuery, defaultLimit, tenant, updateTenant]);
 
   useEffect(() => {
     return () => abortControllerRef.current.abort();

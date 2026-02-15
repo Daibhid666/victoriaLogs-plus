@@ -2,8 +2,6 @@ import { FC, useEffect, useMemo } from "preact/compat";
 import { GraphOptions, GRAPH_STYLES, GRAPH_QUERY_MODE } from "../types";
 import Switch from "../../../Main/Switch/Switch";
 import "./style.scss";
-import useStateSearchParams from "../../../../hooks/useStateSearchParams";
-import { useSearchParams } from "react-router-dom";
 import Button from "../../../Main/Button/Button";
 import { MoreIcon, TipIcon, VisibilityIcon, VisibilityOffIcon } from "../../../Main/Icons";
 import Tooltip from "../../../Main/Tooltip/Tooltip";
@@ -13,6 +11,7 @@ import useDeviceDetect from "../../../../hooks/useDeviceDetect";
 import classNames from "classnames";
 import Modal from "../../../Main/Modal/Modal";
 import useBoolean from "../../../../hooks/useBoolean";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SelectLimit from "../../../Main/Pagination/SelectLimit/SelectLimit";
 import { LOGS_BAR_COUNTS } from "../../../../constants/logs";
 import { useHitsChartConfig } from "../../../../pages/QueryPage/HitsChart/hooks/useHitsChartConfig";
@@ -38,7 +37,8 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
     setFalse: handleCloseList,
   } = useBoolean(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const { topHits, groupFieldHits, barsCount } = useHitsChartConfig();
 
@@ -46,12 +46,14 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
   const { period: { start, end } } = useTimeState();
   const { fetchFieldNames, fieldNames, loading, error } = useFetchFieldNames();
 
-  const [queryMode, setQueryMode] = useStateSearchParams(GRAPH_QUERY_MODE.hits, "graph_mode");
+  const queryMode = searchParams.get("graph_mode") === GRAPH_QUERY_MODE.stats
+    ? GRAPH_QUERY_MODE.stats
+    : GRAPH_QUERY_MODE.hits;
   const isStatsMode = queryMode === GRAPH_QUERY_MODE.stats;
 
-  const [stacked, setStacked] = useStateSearchParams(false, "stacked");
-  const [cumulative, setCumulative] = useStateSearchParams(false, "cumulative");
-  const [hideChart, setHideChart] = useStateSearchParams(false, "hide_chart");
+  const stacked = searchParams.get("stacked") === "true";
+  const cumulative = searchParams.get("cumulative") === "true";
+  const hideChart = searchParams.get("hide_chart") === "true";
 
   const options: GraphOptions = useMemo(() => ({
     graphStyle: GRAPH_STYLES.BAR,
@@ -71,36 +73,32 @@ const BarHitsOptions: FC<Props> = ({ query, isHitsMode, isOverview, onChange }) 
   }, [start, end, extraParams.toString(), fetchFieldNames, query]);
 
   const handleChangeSearchParams = useCallback((key: string, shouldSet: boolean, paramValue?: string) => {
-    const next = new URLSearchParams(searchParams);
+    const hash = window.location.hash || "";
+    const questionIndex = hash.indexOf("?");
+    const currentSearch = questionIndex >= 0 ? hash.slice(questionIndex) : "";
+    const next = new URLSearchParams(currentSearch);
     shouldSet ? next.set(key, paramValue ?? String(shouldSet)) : next.delete(key);
-    setSearchParams(next);
-  }, [searchParams, setSearchParams]);
+    navigate(`?${next.toString()}`, { replace: true });
+  }, [navigate]);
 
   const handleChangeMode = useCallback((val: boolean) => {
     const mode = val ? GRAPH_QUERY_MODE.stats : GRAPH_QUERY_MODE.hits;
-    setQueryMode(mode);
     handleChangeSearchParams("graph_mode", val, mode);
-  }, [setQueryMode, handleChangeSearchParams]);
+  }, [handleChangeSearchParams]);
 
   const handleChangeStacked = useCallback((val: boolean) => {
-    setStacked(val);
     handleChangeSearchParams("stacked", val);
     void patchGlobalSettingsOnServer({ stacked: val });
-  }, [setStacked, handleChangeSearchParams]);
+  }, [handleChangeSearchParams]);
 
   const handleChangeCumulative = useCallback((val: boolean) => {
-    setCumulative(val);
     handleChangeSearchParams("cumulative", val);
     void patchGlobalSettingsOnServer({ cumulative: val });
-  }, [setCumulative, handleChangeSearchParams]);
+  }, [handleChangeSearchParams]);
 
   const toggleHideChart = useCallback(() => {
-    setHideChart(prev => {
-      const nextVal = !prev;
-      handleChangeSearchParams("hide_chart", nextVal);
-      return nextVal;
-    });
-  }, [setHideChart, handleChangeSearchParams]);
+    handleChangeSearchParams("hide_chart", !hideChart);
+  }, [hideChart, handleChangeSearchParams]);
 
   useEffect(() => {
     onChange(options);

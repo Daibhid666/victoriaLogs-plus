@@ -11,6 +11,7 @@ import ThemeControl from "../ThemeControl/ThemeControl";
 import useDeviceDetect from "../../../hooks/useDeviceDetect";
 import useBoolean from "../../../hooks/useBoolean";
 import QueryTimeOverride from "./QueryTimeOverride/QueryTimeOverride";
+import LogsLimitSettings from "./LogsLimitSettings/LogsLimitSettings";
 import useI18n from "../../../i18n/useI18n";
 
 export interface ChildComponentHandle {
@@ -48,15 +49,19 @@ const GlobalSettings = forwardRef<GlobalSettingsHandle>((_, ref) => {
   const controls = [
     {
       show: true,
-      component: <TimezonesPicker ref={timezoneSettingRef}/>
+      component: <TimezonesPicker ref={timezoneSettingRef} />
     },
     {
       show: true,
-      component: <QueryTimeOverride/>
+      component: <QueryTimeOverride />
+    },
+    {
+      show: true,
+      component: <LogsLimitSettings />
     },
     {
       show: !appModeEnable,
-      component: <ThemeControl/>
+      component: <ThemeControl />
     }
   ].filter(control => control.show);
 
@@ -70,11 +75,11 @@ const GlobalSettings = forwardRef<GlobalSettingsHandle>((_, ref) => {
         className="vm-mobile-option"
         onClick={handleOpen}
       >
-        <span className="vm-mobile-option__icon"><SettingsIcon/></span>
+        <span className="vm-mobile-option__icon"><SettingsIcon /></span>
         <div className="vm-mobile-option-text">
           <span className="vm-mobile-option-text__label">{title}</span>
         </div>
-        <span className="vm-mobile-option__arrow"><ArrowDownIcon/></span>
+        <span className="vm-mobile-option__arrow"><ArrowDownIcon /></span>
       </div>
     ) : (
       <Tooltip title={title}>
@@ -84,7 +89,7 @@ const GlobalSettings = forwardRef<GlobalSettingsHandle>((_, ref) => {
           })}
           variant="contained"
           color="primary"
-          startIcon={<SettingsIcon/>}
+          startIcon={<SettingsIcon />}
           onClick={handleOpen}
           ariaLabel="settings"
         />

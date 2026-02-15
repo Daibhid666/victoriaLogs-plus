@@ -55,14 +55,17 @@ const QueryPageBody: FC<Props> = ({ data, queryParams, isLoading, isPreview }) =
   const [activeTab, setActiveTab] = useStateSearchParams(DisplayType.group, "view");
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const [hideLogs, setHideLogs] = useStateSearchParams(false, "hide_logs");
 
   const toggleHideLogs = () => {
     setHideLogs(prev => {
       const newVal = !prev;
-      newVal ? searchParams.set("hide_logs", "true") : searchParams.delete("hide_logs");
-      setSearchParams(searchParams);
+      setSearchParams(current => {
+        const next = new URLSearchParams(current);
+        newVal ? next.set("hide_logs", "true") : next.delete("hide_logs");
+        return next;
+      });
       return newVal;
     });
   };

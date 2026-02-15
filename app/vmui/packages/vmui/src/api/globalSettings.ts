@@ -7,6 +7,7 @@ export interface ServerGlobalSettings {
   autocomplete?: boolean;
   stacked?: boolean;
   cumulative?: boolean;
+  logLimit?: number;
 }
 
 type RawGlobalSettings = Record<string, unknown>;
@@ -24,6 +25,9 @@ const normalizeGlobalSettings = (value: unknown): ServerGlobalSettings | null =>
   if (typeof value.autocomplete === "boolean") next.autocomplete = value.autocomplete;
   if (typeof value.stacked === "boolean") next.stacked = value.stacked;
   if (typeof value.cumulative === "boolean") next.cumulative = value.cumulative;
+  if (typeof value.logLimit === "number" && Number.isFinite(value.logLimit) && value.logLimit > 0) {
+    next.logLimit = value.logLimit;
+  }
 
   return next;
 };
@@ -76,3 +80,7 @@ export const patchGlobalSettingsOnServer = async (patch: ServerGlobalSettings): 
   await patchQueue;
   return result;
 };
+
+// Backward-compatible aliases used by local extensions.
+export const fetchGlobalSettings = fetchGlobalSettingsFromServer;
+export const saveGlobalSettings = patchGlobalSettingsOnServer;

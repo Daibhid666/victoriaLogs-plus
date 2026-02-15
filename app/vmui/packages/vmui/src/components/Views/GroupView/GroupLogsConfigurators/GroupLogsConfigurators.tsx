@@ -81,31 +81,44 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
     setFalse: handleClose,
   } = useBoolean(false);
 
+  const updateSearchParams = useCallback((updater: (next: URLSearchParams) => void) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      updater(next);
+      return next;
+    });
+  }, [setSearchParams]);
+
   const handleSelectGroupBy = (key: string) => {
-    searchParams.set(GROUP_BY, key);
-    setSearchParams(searchParams);
+    updateSearchParams(next => {
+      next.set(GROUP_BY, key);
+    });
   };
 
   const handleSelectDisplayField = (value: string) => {
     const prev = displayFields;
     const newDisplayFields = prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value];
-    searchParams.set(DISPLAY_FIELDS, newDisplayFields.join(","));
-    setSearchParams(searchParams);
+    updateSearchParams(next => {
+      next.set(DISPLAY_FIELDS, newDisplayFields.join(","));
+    });
   };
 
   const handleResetDisplayFields = () => {
-    searchParams.delete(DISPLAY_FIELDS);
-    setSearchParams(searchParams);
+    updateSearchParams(next => {
+      next.delete(DISPLAY_FIELDS);
+    });
   };
 
   const toggleWrapLines = () => {
-    searchParams.set(NO_WRAP_LINES, String(!noWrapLines));
-    setSearchParams(searchParams);
+    updateSearchParams(next => {
+      next.set(NO_WRAP_LINES, String(!noWrapLines));
+    });
   };
 
   const toggleCompactGroupHeader = () => {
-    searchParams.set(COMPACT_GROUP_HEADER, String(!compactGroupHeader));
-    setSearchParams(searchParams);
+    updateSearchParams(next => {
+      next.set(COMPACT_GROUP_HEADER, String(!compactGroupHeader));
+    });
   };
 
   const handleChangeDateFormat = (format: string) => {
@@ -117,43 +130,48 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
   };
 
   const handleSaveAndClose = () => {
-    if (dateFormat === LOGS_DATE_FORMAT) {
-      searchParams.delete(DATE_FORMAT);
-    } else {
-      searchParams.set(DATE_FORMAT, dateFormat);
-    }
-    setSearchParams(searchParams);
+    updateSearchParams(next => {
+      if (dateFormat === LOGS_DATE_FORMAT) {
+        next.delete(DATE_FORMAT);
+      } else {
+        next.set(DATE_FORMAT, dateFormat);
+      }
+    });
     handleClose();
   };
 
   const [serverMsg, setServerMsg] = useState("");
 
-  // Auto-load settings from server when panel opens
-  useEffect(() => {
-    if (!openModal) return;
-    (async () => {
-      const settings = await fetchGroupSettingsFromServer();
-      if (!settings) return;
-      if (settings.groupBy) searchParams.set(GROUP_BY, settings.groupBy);
-      if (settings.displayFields) searchParams.set(DISPLAY_FIELDS, settings.displayFields);
-      if (settings.noWrapLines !== undefined) searchParams.set(NO_WRAP_LINES, String(settings.noWrapLines));
-      if (settings.compactGroupHeader !== undefined) searchParams.set(COMPACT_GROUP_HEADER, String(settings.compactGroupHeader));
+  // Apply fetched settings to local state
+  const applySettings = useCallback((settings: ServerGroupSettings) => {
+    updateSearchParams(next => {
+      if (settings.groupBy) next.set(GROUP_BY, settings.groupBy);
+      if (settings.displayFields) next.set(DISPLAY_FIELDS, settings.displayFields);
+      if (settings.noWrapLines !== undefined) next.set(NO_WRAP_LINES, String(settings.noWrapLines));
+      if (settings.compactGroupHeader !== undefined) next.set(COMPACT_GROUP_HEADER, String(settings.compactGroupHeader));
       if (settings.dateFormat) {
         setDateFormat(settings.dateFormat);
-        searchParams.set(DATE_FORMAT, settings.dateFormat);
+        next.set(DATE_FORMAT, settings.dateFormat);
       }
-      if (settings.markdownParsing !== undefined) {
-        logsDispatch({ type: "SET_MARKDOWN_PARSING", payload: settings.markdownParsing });
-      }
-      if (settings.ansiParsing !== undefined) {
-        logsDispatch({ type: "SET_ANSI_PARSING", payload: settings.ansiParsing });
-      }
-      if (settings.disabledHovers !== undefined) {
-        handleSetDisabledHovers(settings.disabledHovers);
-      }
-      setSearchParams(searchParams);
+    });
+    if (settings.markdownParsing !== undefined) {
+      logsDispatch({ type: "SET_MARKDOWN_PARSING", payload: settings.markdownParsing });
+    }
+    if (settings.ansiParsing !== undefined) {
+      logsDispatch({ type: "SET_ANSI_PARSING", payload: settings.ansiParsing });
+    }
+    if (settings.disabledHovers !== undefined) {
+      handleSetDisabledHovers(settings.disabledHovers);
+    }
+  }, [updateSearchParams, logsDispatch, handleSetDisabledHovers]);
+
+  // Auto-load settings from server on component mount (page visit)
+  useEffect(() => {
+    (async () => {
+      const settings = await fetchGroupSettingsFromServer();
+      if (settings) applySettings(settings);
     })();
-  }, [openModal]);
+  }, []);
 
   const handleSaveToServer = useCallback(async () => {
     const settings: ServerGroupSettings = {
@@ -178,34 +196,17 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
       setTimeout(() => setServerMsg(""), 3000);
       return;
     }
-    if (settings.groupBy) searchParams.set(GROUP_BY, settings.groupBy);
-    if (settings.displayFields) searchParams.set(DISPLAY_FIELDS, settings.displayFields);
-    if (settings.noWrapLines !== undefined) searchParams.set(NO_WRAP_LINES, String(settings.noWrapLines));
-    if (settings.compactGroupHeader !== undefined) searchParams.set(COMPACT_GROUP_HEADER, String(settings.compactGroupHeader));
-    if (settings.dateFormat) {
-      setDateFormat(settings.dateFormat);
-      searchParams.set(DATE_FORMAT, settings.dateFormat);
-    }
-    if (settings.markdownParsing !== undefined) {
-      logsDispatch({ type: "SET_MARKDOWN_PARSING", payload: settings.markdownParsing });
-    }
-    if (settings.ansiParsing !== undefined) {
-      logsDispatch({ type: "SET_ANSI_PARSING", payload: settings.ansiParsing });
-    }
-    if (settings.disabledHovers !== undefined) {
-      handleSetDisabledHovers(settings.disabledHovers);
-    }
-    setSearchParams(searchParams);
+    applySettings(settings);
     setServerMsg(t("group.loadedSuccess"));
     setTimeout(() => setServerMsg(""), 3000);
-  }, [searchParams, setSearchParams, logsDispatch, handleSetDisabledHovers, t]);
+  }, [applySettings, t]);
 
   const tooltipContent = () => {
     if (!hasChanges) return title;
     return (
       <div className="vm-group-logs-configurator__tooltip">
         <p>{title}</p>
-        <hr/>
+        <hr />
         <ul>
           {isGroupChanged && <li>{t("group.groupedBy")} <code>{`"${groupBy}"`}</code></li>}
           {isDisplayFieldsChanged && <li>{t("group.displayFieldsCount")} {displayFields.length || 1}</li>}
@@ -223,12 +224,12 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
         <Tooltip title={tooltipContent()}>
           <Button
             variant="text"
-            startIcon={<SettingsIcon/>}
+            startIcon={<SettingsIcon />}
             onClick={toggleOpen}
             ariaLabel={title}
           />
         </Tooltip>
-        {hasChanges && <span className="vm-group-logs-configurator-button__marker"/>}
+        {hasChanges && <span className="vm-group-logs-configurator-button__marker" />}
       </div>
       {openModal && (
         <Modal
@@ -249,7 +250,7 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
                 <Button
                   variant="text"
                   color="primary"
-                  startIcon={<RestartIcon/>}
+                  startIcon={<RestartIcon />}
                   onClick={() => handleSelectGroupBy(LOGS_GROUP_BY)}
                 />
               </Tooltip>
@@ -271,7 +272,7 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
                 <Button
                   variant="text"
                   color="primary"
-                  startIcon={<RestartIcon/>}
+                  startIcon={<RestartIcon />}
                   onClick={handleResetDisplayFields}
                 />
               </Tooltip>
@@ -292,19 +293,19 @@ const GroupLogsConfigurators: FC<Props> = ({ logs }) => {
                 <Button
                   variant="text"
                   color="primary"
-                  startIcon={<RestartIcon/>}
+                  startIcon={<RestartIcon />}
                   onClick={() => setDateFormat(LOGS_DATE_FORMAT)}
                 />
               </Tooltip>
               <span className="vm-group-logs-configurator-item__info vm-group-logs-configurator-item__info_input">
                 {t("group.dateFormatInfo")} <Hyperlink
                   href="https://day.js.org/docs/en/display/format"
-                >{t("group.dateFormatLink")}</Hyperlink>. <br/>
+                >{t("group.dateFormatLink")}</Hyperlink>. <br />
                 {t("group.currentDateFormat")} <code>{dayjs().format(dateFormat || LOGS_DATE_FORMAT)}</code>
               </span>
             </div>
 
-            <LogParsingSwitches/>
+            <LogParsingSwitches />
 
             <div className="vm-group-logs-configurator-item">
               <Switch

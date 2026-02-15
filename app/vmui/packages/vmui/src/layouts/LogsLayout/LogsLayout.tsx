@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from "preact/compat";
+import { FC, useEffect, useRef, useState } from "preact/compat";
 import Header from "../Header/Header";
 import { matchPath, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import "./style.scss";
@@ -19,10 +19,12 @@ const LogsLayout: FC = () => {
   const appModeEnable = getAppModeEnable();
   const { isMobile } = useDeviceDetect();
   const { pathname } = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const { setLocale } = useI18n();
   const queryDispatch = useQueryDispatch();
   const hasLoadedServerSettings = useRef(false);
+  const loadSettingsTimerRef = useRef<number>();
+  const [settingsInitialized, setSettingsInitialized] = useState(false);
 
   const setDocumentTitle = () => {
     const matchedEntry = Object.entries(routerOptions).find(([path]) => {
@@ -45,11 +47,28 @@ const LogsLayout: FC = () => {
 
   useEffect(() => {
     if (hasLoadedServerSettings.current) return;
-    hasLoadedServerSettings.current = true;
+    let isCancelled = false;
+    let attempts = 0;
+    const maxAttempts = 8;
+    const retryDelayMs = 500;
 
-    (async () => {
+    const loadSettings = async () => {
       const settings = await fetchGlobalSettingsFromServer();
-      if (!settings) return;
+      if (isCancelled) return;
+
+      if (!settings) {
+        if (attempts < maxAttempts) {
+          attempts += 1;
+          loadSettingsTimerRef.current = window.setTimeout(() => {
+            void loadSettings();
+          }, retryDelayMs);
+        } else {
+          setSettingsInitialized(true);
+        }
+        return;
+      }
+
+      hasLoadedServerSettings.current = true;
 
       if (settings.locale) {
         setLocale(settings.locale);
@@ -59,24 +78,34 @@ const LogsLayout: FC = () => {
         queryDispatch({ type: "SET_AUTOCOMPLETE", payload: settings.autocomplete });
       }
 
-      const next = new URLSearchParams(searchParams);
-      let shouldUpdateSearchParams = false;
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev);
+        let changed = false;
 
-      if (!next.has("stacked") && settings.stacked) {
-        next.set("stacked", "true");
-        shouldUpdateSearchParams = true;
-      }
+        if (!next.has("stacked") && settings.stacked) {
+          next.set("stacked", "true");
+          changed = true;
+        }
 
-      if (!next.has("cumulative") && settings.cumulative) {
-        next.set("cumulative", "true");
-        shouldUpdateSearchParams = true;
-      }
+        if (!next.has("cumulative") && settings.cumulative) {
+          next.set("cumulative", "true");
+          changed = true;
+        }
 
-      if (shouldUpdateSearchParams) {
-        setSearchParams(next);
+        return changed ? next : prev;
+      });
+      setSettingsInitialized(true);
+    };
+
+    void loadSettings();
+
+    return () => {
+      isCancelled = true;
+      if (loadSettingsTimerRef.current) {
+        window.clearTimeout(loadSettingsTimerRef.current);
       }
-    })();
-  }, [queryDispatch, searchParams, setLocale, setSearchParams]);
+    };
+  }, [queryDispatch, setLocale, setSearchParams]);
 
   return <section className="vm-container">
     <Header controlsComponent={ControlsLogsLayout}/>
@@ -87,7 +116,7 @@ const LogsLayout: FC = () => {
         "vm-container-body_app": appModeEnable
       })}
     >
-      <Outlet/>
+      {settingsInitialized && <Outlet/>}
     </div>
     {!appModeEnable && <Footer links={footerLinksToLogs}/>}
 

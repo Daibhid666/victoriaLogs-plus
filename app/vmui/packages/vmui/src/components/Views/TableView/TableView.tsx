@@ -23,7 +23,7 @@ const TableView: FC<ViewProps> = ({ data, settingsRef }) => {
         keys.add(key);
       }
     }
-    return Array.from(keys).sort((a,b) => a.localeCompare(b));
+    return Array.from(keys).sort((a, b) => a.localeCompare(b));
   }, [data]);
 
   const handleSetRowsPerPage = (limit: number) => {
@@ -52,18 +52,18 @@ const TableView: FC<ViewProps> = ({ data, settingsRef }) => {
     );
   };
 
-  if (!data.length) return <EmptyLogs />;
-
   return (
     <>
       {renderSettings()}
-      <MemoizedTableView
-        logs={data}
-        displayColumns={displayColumns}
-        tableCompact={false}
-        columns={columns}
-        rowsPerPage={Number(rowsPerPage)}
-      />
+      {!data.length ? <EmptyLogs /> : (
+        <MemoizedTableView
+          logs={data}
+          displayColumns={displayColumns}
+          tableCompact={false}
+          columns={columns}
+          rowsPerPage={Number(rowsPerPage)}
+        />
+      )}
     </>
   );
 };

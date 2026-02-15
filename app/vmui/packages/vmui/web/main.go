@@ -123,6 +123,7 @@ func main() {
 	handler.HandleFunc("/api/query-history", jsonAPIHandler("query-history.json"))
 	handler.HandleFunc("/api/group-settings", jsonAPIHandler("group-settings.json"))
 	handler.HandleFunc("/api/global-settings", jsonAPIHandler("global-settings.json"))
+	handler.HandleFunc("/api/field-selector-settings", jsonAPIHandler("field-selector-settings.json"))
 
 	log.Printf("starting web server at: %v", *listenAddr)
 	log.Fatal(http.ListenAndServe(*listenAddr, handler))
